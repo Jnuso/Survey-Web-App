@@ -29,3 +29,9 @@ Record real Supabase setup, tests, deployment, and issues resolved as they occur
 Created a dedicated Supabase project and applied the initial schema. Supabase Table Editor shows surveys, questions, choices, responses, answers, and instructors. The app's ignored local `.env` now contains the project URL and publishable key; no service-role key was used.
 
 A public-client check found that survey, question, and choice queries succeeded with zero rows; queries for responses and answers failed with permission code 42501, as did an attempted anonymous survey insert. This confirms only the tested empty-database access cases. Active survey reads, instructor access, submissions, and persistence remain to be checked with test data.
+
+A rollback-only SQL integration check then created a disposable draft through `save_survey`, activated it, submitted an answer, confirmed its answer row, and checked that a duplicate browser token was rejected. The transaction was rolled back. The instructor account was enrolled in the allowlist. These checks do not replace a browser-based workflow, tests of active survey public reads, or live deployment tests.
+
+## End-to-end local sample
+
+Signed in with the enrolled instructor account, created and activated `Sample: Classroom Check-In`, opened its presentation page, submitted a sample answer through the student page, and saw one response and 100% for the selected choice in the results. A separate anonymous Supabase client read the active survey, submitted another sample answer, was refused on a second submission with the same token, and could not read responses. The sample survey and two sample responses remain in the project, clearly labeled for testing; no real student data was used. The QR code currently points to localhost and is not yet suitable for classroom use.

@@ -24,3 +24,7 @@ Not run: the local Docker Linux engine was unavailable on initial inspection. No
 ## Direct-agent baseline — October 30, 2026
 
 A direct review agent received only `cases.md` and no answer key. It independently identified cases A, B, and C with the expected counterexamples and reported no finding for D. Score: 3/3 seeded defects, 0 findings on the control, 0 unsupported findings. No executable tests were run; exact duration and token usage were not captured. This result is not a custom Gemma-worker result, a comparison between models, or an estimate of real-world review accuracy.
+
+## Prompt-comparison limitation
+
+A second agent was asked to review the same cases with more explicit reproduction and evidence requirements. It inherited the earlier review context, so its matching findings are not an independent or blind comparison and are not scored. A valid future comparison needs fresh agents with no prior findings or answer key in their context. The custom Gemma worker remains untested in this project.
