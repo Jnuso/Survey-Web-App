@@ -24,17 +24,17 @@ This roadmap breaks the implementation into small, testable phases ordered from 
 
 # Phase 2 — Supabase Project and Database
 
-- [ ] Create a Supabase project.
-- [ ] Create the `surveys` table.
-- [ ] Create the `questions` table.
-- [ ] Create the `choices` table.
-- [ ] Create the `responses` table.
-- [ ] Create the `answers` table.
-- [ ] Add foreign-key constraints.
-- [ ] Add database indexes.
-- [ ] Add timestamps.
-- [ ] Add survey-status validation.
-- [ ] Create Row Level Security policies.
+- [x] Create a Supabase project.
+- [x] Create the `surveys` table.
+- [x] Create the `questions` table.
+- [x] Create the `choices` table.
+- [x] Create the `responses` table.
+- [x] Create the `answers` table.
+- [x] Add foreign-key constraints.
+- [x] Add database indexes.
+- [x] Add timestamps.
+- [x] Add survey-status validation.
+- [x] Create Row Level Security policies.
 - [ ] Verify students cannot read survey results.
 - [ ] Verify anonymous students can read active surveys.
 - [ ] Verify anonymous students can submit responses.
@@ -247,5 +247,6 @@ This roadmap breaks the implementation into small, testable phases ordered from 
 - [ ] Add multiple instructors.
 - [ ] Add course and semester organization.
 - [ ] Add analytics across multiple surveys.
+
 
 

@@ -23,3 +23,9 @@ Record real Supabase setup, tests, deployment, and issues resolved as they occur
 ## Verification recorded October 30, 2026
 
 `npm run build` passed, with a bundle-size warning; the landing page and sign-in page were checked in a local browser using placeholder public configuration. `npm test` passed two CSV tests. `npm audit` reported zero vulnerabilities after updating the test runner. Database behavior, authentication, real results, mobile use, and deployment remain unverified.
+
+## Supabase connection — October 30, 2026
+
+Created a dedicated Supabase project and applied the initial schema. Supabase Table Editor shows surveys, questions, choices, responses, answers, and instructors. The app's ignored local `.env` now contains the project URL and publishable key; no service-role key was used.
+
+A public-client check found that survey, question, and choice queries succeeded with zero rows; queries for responses and answers failed with permission code 42501, as did an attempted anonymous survey insert. This confirms only the tested empty-database access cases. Active survey reads, instructor access, submissions, and persistence remain to be checked with test data.
