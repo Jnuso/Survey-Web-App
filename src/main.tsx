@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  BrowserRouter,
+  HashRouter,
   Link,
   Navigate,
   Route,
@@ -667,7 +667,7 @@ function Present() {
         const s = await surveyById(id!);
         if (!s || s.status !== "active")
           throw new Error("This survey is not active.");
-        const url = `${window.location.origin}/s/${s.public_slug}`;
+        const url = `${window.location.origin}${import.meta.env.BASE_URL}#/s/${s.public_slug}`;
         const image = await QRCode.toDataURL(url, { width: 600, margin: 2 });
         if (alive) {
           setSurvey(s);
@@ -721,7 +721,7 @@ function Present() {
             <p>Scan to share your answer</p>
             <img className="qr" src={qr} alt="QR code linking to the survey" />
             <p className="survey-url">
-              {window.location.origin}/s/{survey.public_slug}
+              {window.location.origin}{import.meta.env.BASE_URL}#/s/{survey.public_slug}
             </p>
             <p className="response-count">
               <strong>{count}</strong> responses
@@ -1033,8 +1033,8 @@ function Results() {
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <App />
-    </BrowserRouter>
+    </HashRouter>
   </React.StrictMode>,
 );
