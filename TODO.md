@@ -217,17 +217,17 @@ This roadmap breaks the implementation into small, testable phases ordered from 
 
 ---
 
-# Phase 15 — Deployment
+# Phase 15 — Deployment (GitHub Pages chosen instead of Cloudflare)
 
 - [ ] Push the project to GitHub.
 - [ ] Create the Cloudflare Pages site.
 - [ ] Connect Cloudflare Pages to the GitHub repository.
 - [ ] Configure production environment variables.
-- [ ] Deploy the application.
+- [x] Deploy the application.
 - [ ] Configure SPA routing.
 - [ ] Verify production login.
 - [ ] Verify QR codes point to the production URL.
-- [ ] Test student submissions in production.
+- [x] Test student submissions in production.
 - [ ] Test instructor results in production.
 
 ---
@@ -247,6 +247,7 @@ This roadmap breaks the implementation into small, testable phases ordered from 
 - [ ] Add multiple instructors.
 - [ ] Add course and semester organization.
 - [ ] Add analytics across multiple surveys.
+
 
 
 

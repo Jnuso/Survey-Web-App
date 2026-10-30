@@ -35,3 +35,7 @@ A rollback-only SQL integration check then created a disposable draft through `s
 ## End-to-end local sample
 
 Signed in with the enrolled instructor account, created and activated `Sample: Classroom Check-In`, opened its presentation page, submitted a sample answer through the student page, and saw one response and 100% for the selected choice in the results. A separate anonymous Supabase client read the active survey, submitted another sample answer, was refused on a second submission with the same token, and could not read responses. The sample survey and two sample responses remain in the project, clearly labeled for testing; no real student data was used. The QR code currently points to localhost and is not yet suitable for classroom use.
+
+## GitHub Pages deployment
+
+The project switched from the planned Cloudflare host to GitHub Pages. GitHub Actions run 41128733109 succeeded after tests and production build, and the public site returned HTTP 200 at https://jnuso.github.io/Survey-Web-App/. In a browser, an anonymous visitor opened the sample survey by its production hash URL, submitted a response successfully, and received the duplicate-submission message on a second attempt. Instructor sign-in, results, QR scanning on a phone, and full production workflow still require verification.
