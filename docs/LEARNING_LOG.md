@@ -1,0 +1,25 @@
+# Learning and development log
+
+## Phase 1 — Architecture and setup
+
+The assignment separates the interface from data storage. React builds pages from components; TypeScript checks types; Vite runs and builds the app. Git tracks source history, and GitHub hosts the repository. Supabase provides PostgreSQL (relational tables and constraints), authentication, and a browser-facing API. Cloudflare Pages will host the built frontend.
+
+The inherited TODO checkmarks were reset because this repository started empty. The five supplied specifications remain in the project. Exercise: open `DATABASE.md` and trace how a survey connects to questions, responses, and answers.
+
+## Phases 2–5 — Implementation underway
+
+The app routes and database migration have been authored, but they are not yet verified against a real Supabase project. A browser sends a submission to a database function; the function checks that the survey is active and that choices belong to its questions, then inserts the response and answers in one transaction. Instructor accounts are explicitly enrolled in `public.instructors`.
+
+Review: an independent agent identified possible result truncation and overbroad instructor access. The code was adjusted to load response pages and require an instructor allowlist. These adjustments still need integration tests. Exercise: trace `submit_survey_response` from the student page to the SQL function, then identify where it rejects a duplicate.
+
+## Reviewer experiment
+
+A blind direct-agent review received only four synthetic cases, not the answer key. It identified all three seeded defects and correctly reported no finding for the control. This is a tiny illustrative result, not an accuracy estimate; no tests were run by that reviewer. The existing custom worker's Docker-based execution was unavailable, so no comparable Gemma baseline has run. See `reviewer-experiment/` for the cases, key, and protocol.
+
+## Remaining evidence
+
+Record real Supabase setup, tests, deployment, and issues resolved as they occur. Screenshots and final submission statements must reflect actual results; no credentials or private student data should be included.
+
+## Verification recorded October 30, 2026
+
+`npm run build` passed, with a bundle-size warning; the landing page and sign-in page were checked in a local browser using placeholder public configuration. `npm test` passed two CSV tests. `npm audit` reported zero vulnerabilities after updating the test runner. Database behavior, authentication, real results, mobile use, and deployment remain unverified.
