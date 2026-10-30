@@ -205,10 +205,10 @@ This roadmap breaks the implementation into small, testable phases ordered from 
 - [ ] Test survey editing.
 - [x] Test activation.
 - [ ] Test closing surveys.
-- [ ] Test QR-code links.
+- [x] Test QR-code links.
 - [x] Test student submissions.
 - [x] Test duplicate-submission prevention.
-- [ ] Test results calculations.
+- [x] Test results calculations.
 - [ ] Test CSV export.
 - [ ] Test mobile layout.
 - [ ] Test with at least two browsers.
@@ -219,16 +219,16 @@ This roadmap breaks the implementation into small, testable phases ordered from 
 
 # Phase 15 — Deployment (GitHub Pages chosen instead of Cloudflare)
 
-- [ ] Push the project to GitHub.
+- [x] Push the project to GitHub.
 - [ ] Create the Cloudflare Pages site.
 - [ ] Connect Cloudflare Pages to the GitHub repository.
 - [ ] Configure production environment variables.
 - [x] Deploy the application.
-- [ ] Configure SPA routing.
-- [ ] Verify production login.
-- [ ] Verify QR codes point to the production URL.
+- [x] Configure SPA routing.
+- [x] Verify production login.
+- [x] Verify QR codes point to the production URL.
 - [x] Test student submissions in production.
-- [ ] Test instructor results in production.
+- [x] Test instructor results in production.
 
 ---
 
@@ -247,6 +247,8 @@ This roadmap breaks the implementation into small, testable phases ordered from 
 - [ ] Add multiple instructors.
 - [ ] Add course and semester organization.
 - [ ] Add analytics across multiple surveys.
+
+
 
 
 

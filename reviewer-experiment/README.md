@@ -28,3 +28,7 @@ A direct review agent received only `cases.md` and no answer key. It independent
 ## Prompt-comparison limitation
 
 A second agent was asked to review the same cases with more explicit reproduction and evidence requirements. It inherited the earlier review context, so its matching findings are not an independent or blind comparison and are not scored. A valid future comparison needs fresh agents with no prior findings or answer key in their context. The custom Gemma worker remains untested in this project.
+
+## Fresh improved-prompt comparison
+
+A fresh agent without prior conversation context read only `cases.md`. Its additional instructions asked it to check boundary values, state changes, and authorization against each contract and to provide reproducible findings. It identified A, B, and C, and reported no defect in D: 3/3 seeded issues and no control false positive, matching the direct-agent baseline. It additionally distinguished a pre-existing authorization weakness in case C from the new regression. No tests were run, elapsed time and tokens were not captured, and the four synthetic cases cannot establish an improvement or general accuracy. This was a direct-agent experiment, not a custom Gemma-worker run.
