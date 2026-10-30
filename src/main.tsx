@@ -76,7 +76,7 @@ function App() {
       <Route path="/surveys/:id/edit" element={guard(<Editor />)} />
       <Route path="/surveys/:id/present" element={guard(<Present />)} />
       <Route path="/surveys/:id/results" element={guard(<Results />)} />
-      <Route path="/s/:slug" element={<Student />} />
+      <Route path="/s/:slug" element={<StudentRoute />} />
       <Route
         path="*"
         element={
@@ -544,6 +544,14 @@ function Editor() {
                   onChange={(e) => {
                     const type = e.target
                       .value as DraftQuestion["question_type"];
+                    if (
+                      q.question_type === "multiple_choice" &&
+                      q.choices.some((choice) => choice.trim()) &&
+                      !window.confirm(
+                        "Changing the question type will replace its answer choices. Continue?",
+                      )
+                    )
+                      return;
                     change(i, {
                       question_type: type,
                       choices:
@@ -609,11 +617,15 @@ function Editor() {
                     disabled={
                       q.question_type === "true_false" || q.choices.length <= 2
                     }
-                    onClick={() =>
-                      change(i, {
-                        choices: q.choices.filter((_, j) => j !== n),
-                      })
-                    }
+                    onClick={() => {
+                      if (
+                        !choice.trim() ||
+                        window.confirm("Remove this answer choice?")
+                      )
+                        change(i, {
+                          choices: q.choices.filter((_, j) => j !== n),
+                        });
+                    }}
                   >
                     Remove
                   </button>
@@ -662,14 +674,19 @@ function Present() {
   useEffect(() => {
     if (!id) return;
     let alive = true;
+    let latestRequest = 0;
+    let inFlight = false;
     async function load() {
+      if (inFlight) return;
+      inFlight = true;
+      const request = ++latestRequest;
       try {
         const s = await surveyById(id!);
         if (!s || s.status !== "active")
           throw new Error("This survey is not active.");
         const url = `${window.location.origin}${import.meta.env.BASE_URL}#/s/${s.public_slug}`;
         const image = await QRCode.toDataURL(url, { width: 600, margin: 2 });
-        if (alive) {
+        if (alive && request === latestRequest) {
           setSurvey(s);
           setQr(image);
         }
@@ -678,9 +695,14 @@ function Present() {
           .select("id", { count: "exact", head: true })
           .eq("survey_id", id!);
         if (error) throw error;
-        if (alive) setCount(count || 0);
+        if (alive && request === latestRequest) {
+          setCount(count || 0);
+          setError("");
+        }
       } catch (e) {
-        if (alive) setError(message(e));
+        if (alive && request === latestRequest) setError(message(e));
+      } finally {
+        inFlight = false;
       }
     }
     void load();
@@ -721,7 +743,8 @@ function Present() {
             <p>Scan to share your answer</p>
             <img className="qr" src={qr} alt="QR code linking to the survey" />
             <p className="survey-url">
-              {window.location.origin}{import.meta.env.BASE_URL}#/s/{survey.public_slug}
+              {window.location.origin}
+              {import.meta.env.BASE_URL}#/s/{survey.public_slug}
             </p>
             <p className="response-count">
               <strong>{count}</strong> responses
@@ -745,6 +768,10 @@ function Present() {
     </>
   );
 }
+function StudentRoute() {
+  const { slug } = useParams();
+  return <Student key={slug} />;
+}
 function Student() {
   const { slug } = useParams();
   const [survey, setSurvey] = useState<Survey | null>(null);
@@ -755,6 +782,11 @@ function Student() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
+    let current = true;
+    setState("loading");
+    setSurvey(null);
+    setAnswers({});
+    setError("");
     async function load() {
       const { data, error } = await db
         .from("surveys")
@@ -762,6 +794,7 @@ function Student() {
         .eq("public_slug", slug)
         .eq("status", "active")
         .maybeSingle();
+      if (!current) return;
       if (error || !data) {
         setError(
           "This survey is unavailable or no longer accepting responses.",
@@ -773,6 +806,9 @@ function Student() {
       }
     }
     void load();
+    return () => {
+      current = false;
+    };
   }, [slug]);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -783,10 +819,17 @@ function Student() {
     }
     setBusy(true);
     setError("");
-    let token = localStorage.getItem("classroom-survey-token");
-    if (!token) {
-      token = crypto.randomUUID();
-      localStorage.setItem("classroom-survey-token", token);
+    let token: string | null;
+    try {
+      token = localStorage.getItem("classroom-survey-token");
+      if (!token) {
+        token = crypto.randomUUID();
+        localStorage.setItem("classroom-survey-token", token);
+      }
+    } catch {
+      setBusy(false);
+      setError("Browser storage is unavailable. Enable it and try again.");
+      return;
     }
     const { error } = await db.rpc("submit_survey_response", {
       p_survey_id: survey.id,
@@ -903,6 +946,7 @@ function Results() {
       }
       setSurvey(s);
       setResponses(all);
+      setError("");
     } catch (e) {
       setError(message(e));
     } finally {
