@@ -10,7 +10,7 @@ A classroom polling app built with React, TypeScript, Vite, and Supabase. Studen
 
 ## Supabase setup
 
-1. Create or select a dedicated Supabase project. In the SQL Editor, run the complete contents of `supabase/migrations/20261030000000_initial.sql` once on a new database. It creates tables, permissions, and transactional functions.
+1. Create or select a dedicated Supabase project. In the SQL Editor, run the SQL files in `supabase/migrations/` in filename order once on a new database. They create tables, permissions, and database functions.
 2. Disable public signup and create an instructor user in Supabase Authentication. In the SQL Editor, enroll that user's UUID (from the Auth users page), replacing the placeholder:
 
 ```sql
@@ -28,7 +28,7 @@ This repository uses the workflow in `.github/workflows/pages.yml`. In repositor
 The expected project URL is `https://jnuso.github.io/Survey-Web-App/`. The app uses hash-based routes such as `#/s/<survey-id>` because GitHub Pages hosts static files and does not provide a server-side SPA rewrite. QR codes include the project path. Verify the public login, QR URL on a phone, anonymous submission, duplicate protection, results, and CSV after deployment.
 ## How it works
 
-The React browser app uses the public Supabase client key. Auth signs in instructors; PostgreSQL row-level security and an instructor allowlist control access. The database saves drafts and activates surveys in transactions. Students can read active questions only and call a submission function, which validates the active survey and choices before saving a response atomically. A random browser token in local storage reduces accidental duplicates, but cannot prevent a determined user from using another browser or clearing storage. Results are instructor-only and exported in the browser.
+The React browser app uses the public Supabase client key. Auth signs in instructors; PostgreSQL row-level security and an instructor allowlist control access. The database saves drafts and activates surveys in transactions. Instructor results and CSV use one database snapshot. Students can read active questions only and call a submission function, which validates the active survey and choices before saving a response atomically. A random browser token in local storage reduces accidental duplicates, but cannot prevent a determined user from using another browser or clearing storage. Results are instructor-only and exported in the browser.
 
 - `src/main.tsx`: pages, routes, and interactions.
 - `src/lib.ts`: Supabase client, models, ordering, and CSV.
@@ -38,4 +38,5 @@ The React browser app uses the public Supabase client key. Auth signs in instruc
 ## Current status
 
 Implementation is in progress. See `TODO.md` and `docs/LEARNING_LOG.md` for verified progress and outstanding deployment work. Do not use real student responses until database access controls have been tested in the deployed project.
+
 

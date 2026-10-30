@@ -48,3 +48,7 @@ An instructor signed in to GitHub Pages. The sample results showed three respons
 ## Phone QR check
 
 The student scanned the presentation QR code on a phone and reported that the deployed survey opened. A phone submission was not confirmed.
+
+## Results snapshot
+
+The results page now calls an instructor-only database function that returns the survey definition and all responses from one statement snapshot. The display and CSV use that same returned data. A rollback-only SQL test checked 601 distinct response IDs and their answers; an anonymous RPC call was denied with code 42501. An independent agent reviewed the SQL and frontend mapping without finding a concrete defect. The build and existing CSV unit tests passed. A concurrent-submission stress test and production browser verification are still needed; a very large survey could exceed the cost or memory limits of a single JSON response.

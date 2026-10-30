@@ -927,25 +927,13 @@ function Results() {
     if (!id) return;
     setLoading(true);
     try {
-      const s = await surveyById(id);
-      if (!s) throw new Error("Survey not found");
-      const all: Response[] = [];
-      const pageSize = 500;
-      for (let start = 0; ;) {
-        const { data, error } = await db
-          .from("responses")
-          .select("id, submitted_at, answers(question_id, choice_id)")
-          .eq("survey_id", id)
-          .order("submitted_at")
-          .order("id")
-          .range(start, start + pageSize - 1);
-        if (error) throw error;
-        all.push(...(data as Response[]));
-        if (data.length === 0) break;
-        start += data.length;
-      }
-      setSurvey(s);
-      setResponses(all);
+      const { data, error } = await db.rpc("get_survey_results", {
+        p_survey_id: id,
+      });
+      if (error) throw error;
+      const snapshot = data as { survey: Survey; responses: Response[] };
+      setSurvey(ordered(snapshot.survey));
+      setResponses(snapshot.responses);
       setError("");
     } catch (e) {
       setError(message(e));
