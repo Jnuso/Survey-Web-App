@@ -86,9 +86,74 @@ Use the deployed app at https://jnuso.github.io/Survey-Web-App/. These are manua
 **Expected:** The survey is usable on both devices, confirms each submission, and the instructor sees both responses after refresh.
 **Prior evidence:** Phone QR scan opened the survey; phone submission and second-browser checks are pending.
 
+## Edge cases and failure recovery
+
+These cases are **not yet tested** unless an explicit prior observation is stated. Use a dedicated disposable test project for bulk, concurrency, malformed-payload, and fault-injection tests. Do not add hundreds of records to the assignment's existing evidence survey or simulate failures on a real class survey. Database/API checks supplement the browser checks; they are not claims that a browser alone can create the required conditions.
+
+### E01 — Empty and single-response results
+**Steps:** Open results for a newly activated test survey with zero responses, export its CSV, then submit exactly one answer and refresh results.
+**Expected:** Zero responses shows the empty state and no division-by-zero or invalid percentage. The CSV contains the header and no response rows. After submission, the count is 1, the chosen answer is 100%, and the others are 0%.
+
+### E02 — Snapshot with more than 500 responses
+**Steps:** In an isolated test project, seed 601 uniquely identifiable fictional responses and corresponding answers to a dedicated survey. Open its results and export CSV; independently query the database for count and unique response IDs, and compare with the CSV rows.
+**Expected:** Results show 601 responses; the CSV contains exactly 601 distinct response IDs with the correct answers and no omissions or duplicates. A rollback-only SQL test previously verified the database snapshot function with 601 responses; the browser and CSV portions remain untested.
+
+### E03 — Submissions concurrent with a snapshot
+**Steps:** In an isolated test project, seed more than 500 uniquely identifiable responses. Use two database sessions and synchronization barriers: begin one response transaction without committing it; start an instructor snapshot request, commit the response while the request is in progress, and record the IDs returned. Repeat with the commit completed before the snapshot begins and with it occurring after. Compare every snapshot's response IDs against the database visibility at that snapshot boundary; separately compare the displayed counts and exported CSV from the same loaded snapshot.
+**Expected:** Each snapshot is internally consistent: each visible response and its answers occur once; the uncommitted/later response may be absent, while a response committed before the snapshot starts is present. The UI and CSV agree for the same load. Refresh after all commits to verify the final count. Record synchronization evidence rather than inferring a race from timing alone.
+
+### E04 — Partial or mismatched submissions
+**Steps:** In a signed-out test client, submit empty answers, duplicate question IDs, an unknown question ID, a choice from a different question, malformed IDs, and an answer from a different survey. Recheck the response count after each attempt.
+**Expected:** Every invalid payload is rejected and creates neither a response nor partial answers. The browser shows a useful error without exposing internal database details. Test RPC payload manipulation separately from ordinary UI behavior.
+
+### E05 — Simultaneous duplicates and double-click
+**Steps:** On a disposable active survey, issue two submissions with the same browser token at nearly the same time; separately double-click Submit in the browser. Then retry with a different token.
+**Expected:** At most one response is saved for the original token; the UI prevents repeated clicks while submitting and shows a friendly duplicate message if needed. The different token can submit once. Check database records as well as the visible message.
+
+### E06 — Close or switch during submission
+**Steps:** Open a disposable active survey in a student session. While holding a submission request at a controlled barrier, close the survey or activate another test survey, then release the request. Repeat with the submission committed before closing and with closing completed first.
+**Expected:** A submission that commits before closing may succeed; once closing has completed, a new submission is rejected. Each response is complete or absent, with no orphaned answers. Opening the previous survey afterward reports it is unavailable. Record actual ordering and results.
+
+### E07 — Route changes and stale asynchronous work
+**Steps:** In one browser tab, select an answer on survey A, then navigate to survey B; repeat after completing survey A. Also delay A's request so it finishes after navigating to B.
+**Expected:** B starts with its own empty answers and form; A's answers, success state, and late response do not replace B's state. The local invalid-link-and-back check passed earlier; a two-survey and delayed-request test remains pending.
+
+### E08 — Question-type changes and cancellation
+**Steps:** Enter multiple-choice text, switch to true/false, and cancel the warning. Repeat and confirm. Add a third nonempty choice, cancel its removal, then confirm removal. Save and reopen.
+**Expected:** Cancel retains the original choices and type. Confirmed type changes/removal discard only the content identified in the warning; the final saved state persists. No other question or answer changes.
+
+### E09 — Temporary network failures
+**Steps:** On a test survey's presentation page, block a poll request, restore connectivity, and wait for the next refresh. Repeat on results by forcing Refresh to fail and then to succeed. Simulate a slow presentation request lasting longer than its refresh interval.
+**Expected:** A useful error appears; after recovery, the QR, link, count, and controls return, and the results error clears. Slow requests do not cause every refresh to be discarded. Confirm with browser network controls and record the request outcomes.
+
+### E10 — Browser storage unavailable
+**Steps:** In a disposable browser profile, block or force errors from local storage, open a test survey, and attempt to submit. Restore storage and retry.
+**Expected:** The button is re-enabled and a helpful storage message is shown without claiming the response was submitted. After storage is restored, a valid response can be submitted once. Do not silently disable duplicate protection.
+
+### E11 — CSV special characters and missing answers
+**Steps:** In a disposable survey, include a comma, quote, line break, Unicode, and spreadsheet-formula-like prefix in question or choice text. Where possible, use a controlled historical fixture with a missing answer. Export and open the file in a spreadsheet application.
+**Expected:** Rows and columns stay aligned, quotes and line breaks survive, Unicode is readable, formula-like content is treated as text, and a missing answer is represented as an empty cell. Never execute an exported formula to test safety.
+
+### E12 — Authorization and missing resources
+**Steps:** From an anonymous client and an authenticated account that is not on the instructor allowlist, call the results snapshot function for an existing test survey. As an enrolled instructor, request a nonexistent survey ID. Also open a protected route while signed out.
+**Expected:** Anonymous and non-instructor users receive no response or answer data; the nonexistent ID produces a controlled error; protected pages require sign-in. Check API responses as well as browser display and avoid recording credentials or tokens.
+
+### E13 — Refresh, reload, and export consistency
+**Steps:** Load instructor results for a disposable survey, add a new test response in another profile, export without refreshing, then refresh and export again. Reload the results page and compare counts with the database.
+**Expected:** The first export matches the snapshot already displayed, even if it does not include the later response. Refresh obtains a new consistent snapshot; the second export and displayed counts agree and include the committed response. A reload preserves correct results.
+
+### E14 — Keyboard, narrow screens, and long content
+**Steps:** Use a phone and desktop at 200% zoom with long question/choice text, several options, a long URL, and only keyboard navigation. Test focus and browser back/forward navigation.
+**Expected:** Text and controls remain visible and usable without unintended clipping; focus remains identifiable; radio choices and submit work; navigation does not silently submit. Document actual screen-reader behavior separately.
+
+### E15 — Large snapshot limits
+**Steps:** In an isolated test project only, gradually increase synthetic response volume beyond the expected class size while recording request time, response size, browser behavior, and errors. Stay within free-tier limits and stop on service degradation.
+**Expected:** Within the tested size, results and export remain correct and responsive. If a service, memory, or response-size limit is reached, the app reports failure rather than presenting a truncated result as complete. Record the measured limit; do not infer an unlimited capacity.
+
 ## Test run record
 
 | Date | Case | Environment | Outcome | Evidence / issue |
 | --- | --- | --- | --- | --- |
 | 2026-10-30 | B01, B05, B08–B10 | Deployed site; desktop browser; separate API client | Partial pass | See `docs/LEARNING_LOG.md`; only the prior-evidence steps above were checked. |
 | 2026-10-30 | B05 / B14 | Physical phone | Partial pass | User reported that the sample QR code opened the survey. |
+
