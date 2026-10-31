@@ -157,3 +157,5 @@ These cases are **not yet tested** unless an explicit prior observation is state
 | 2026-10-30 | B01, B05, B08–B10 | Deployed site; desktop browser; separate API client | Partial pass | See `docs/LEARNING_LOG.md`; only the prior-evidence steps above were checked. |
 | 2026-10-30 | B05 / B14 | Physical phone | Partial pass | User reported that the sample QR code opened the survey. |
 
+
+| 2026-10-31 | Browser suite | Internal browser | Blocked | Local browser use disabled in Work settings; no browser cases were run. Five CSV unit tests passed, including edge cases and 601 synthetic export rows. |

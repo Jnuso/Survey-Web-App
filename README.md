@@ -37,6 +37,6 @@ The React browser app uses the public Supabase client key. Auth signs in instruc
 
 ## Current status
 
-Implementation is in progress. See `TODO.md` and `docs/LEARNING_LOG.md` for verified progress and outstanding deployment work. Do not use real student responses until database access controls have been tested in the deployed project.
+The app is deployed on GitHub Pages. See `TODO.md`, `docs/BROWSER_TEST_CASES.md`, and `docs/LEARNING_LOG.md` for implemented features, verified behavior, and remaining tests. Do not use real student responses until database access controls have been tested in the deployed project.
 
 

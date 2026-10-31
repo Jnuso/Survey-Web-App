@@ -14,7 +14,7 @@ The database uses row-level security and an explicit instructor allowlist. Stude
 
 A dedicated free Supabase project was created. Its SQL editor was used to apply the schema migration, and an instructor account was enrolled in the allowlist. Public-client checks showed that anonymous users could read an active survey and submit a response, but could not read responses, insert surveys directly, or submit the same browser token twice.
 
-An independent review found that the first results query might omit records above the API's response limit, and that trusting every authenticated account would grant too much access. The implementation was changed to request response pages and to require an instructor allowlist. These changes still warrant further testing under concurrent load and with more users.
+An independent review found that the first results query might omit records above the API's response limit, and that trusting every authenticated account would grant too much access. The implementation was changed to require an instructor allowlist. Response pagination was later replaced with one instructor-only database snapshot so results and CSV use a consistent view. A rollback-only check covered 601 responses; concurrent-load testing remains outstanding.
 
 The original plan used Cloudflare Pages; the hosting choice was changed to GitHub Pages. GitHub Actions runs the tests and builds and publishes the React application. The Vite base path and hash-based routes support this repository's project URL, including student QR links. The deployed site is https://jnuso.github.io/Survey-Web-App/.
 
