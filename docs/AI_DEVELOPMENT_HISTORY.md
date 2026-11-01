@@ -14,3 +14,5 @@ This is a summary of the actual work in the Codex chat; it is not a verbatim tra
 
 
 9. The student requested more edge cases and browser checks. The agent created a two-question test survey, tested editing and submissions, verified that closed surveys reject access, captured database evidence, checked a downloaded CSV, and verified signed-out browser access and protected routes. Remaining checks are recorded in the browser test cases.
+
+10. The student tested the active survey on a phone and confirmed that a submission displayed the thank-you page.

@@ -65,3 +65,6 @@ The internal browser became available. A fictional two-question test draft was c
 
 
 The previously interrupted close action subsequently took effect: the test survey was closed, its results remained available, and its student link showed unavailable. Its duplicate was activated. The exported CSV contained the expected response ID, timestamp, and both test answers when parsed with PowerShell. After sign-out, dashboard and results routes redirected to login; a fictional response to the active duplicate succeeded without signing in. The instructor is now signed out in the internal browser. A spreadsheet application check remains outstanding.
+
+
+The student reported that the active test survey opened on a physical phone and that submitting fictional answers produced the thank-you confirmation. The instructor-side count for this specific response has not yet been checked.
