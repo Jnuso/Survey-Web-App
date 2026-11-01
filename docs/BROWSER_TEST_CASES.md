@@ -159,3 +159,5 @@ These cases are **not yet tested** unless an explicit prior observation is state
 
 
 | 2026-10-31 | Browser suite | Internal browser | Blocked | Local browser use disabled in Work settings; no browser cases were run. Five CSV unit tests passed, including edge cases and 601 synthetic export rows. |
+
+| 2026-11-01 | B02–B05, B08–B10, E01 | Deployed site; internal browser, shared instructor session | Partial pass | Created and reloaded a draft with both types; edited and reordered questions and choices; duplicated it; blank title rejected; activating it closed the older sample. Empty results displayed 0%; a complete fictional submission and its results passed; an unanswered and repeated submission were rejected. The student tab shared the instructor browser session, so this run alone does not establish signed-out access. CSV download was clicked but the file was not inspected; close confirmation handling was interrupted. |

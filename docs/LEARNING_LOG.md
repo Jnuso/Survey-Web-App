@@ -57,3 +57,8 @@ The results page now calls an instructor-only database function that returns the
 ## Local edge-case checks — October 31, 2026
 
 The internal browser could not be opened because local browser use was disabled in Work settings, so no new browser cases were marked passed. CSV unit coverage was extended for zero and missing answers, Unicode, line breaks, formula-like values, and a 601-row export. These checks do not replace opening an export in a spreadsheet or testing live concurrent submissions. The TODO implementation checkboxes were reconciled with the code; checked implementation is distinct from end-to-end verification.
+
+
+## Browser and database checks — November 1, 2026
+
+The internal browser became available. A fictional two-question test draft was created, reloaded, edited, reordered, duplicated and activated; the previous sample closed automatically. Blank title and unanswered submission were rejected. One completed response was saved; repeating it with the same token was rejected. Results refreshed to show the chosen answers at 100%. The student tab shared the instructor browser session, so this run does not independently verify signed-out access. Supabase showed both test questions and the saved response. Screenshots in `docs/` record the test data and omit browser tokens. The CSV button was clicked, but the downloaded file was not located or inspected. The explicit close confirmation was interrupted, so closing by that button remains unverified. The original test survey remains active; the earlier sample is closed and retains its results.

@@ -202,7 +202,7 @@ This roadmap tracks implementation. A checked implementation item means code exi
 
 - [x] Test instructor login.
 - [x] Test survey creation.
-- [ ] Test survey editing.
+- [x] Test survey editing. (Title and question/choice ordering verified; other cases remain.)
 - [x] Test activation.
 - [ ] Test closing surveys.
 - [x] Test QR-code links.
