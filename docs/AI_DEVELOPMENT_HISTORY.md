@@ -12,3 +12,5 @@ This is a summary of the actual work in the Codex chat; it is not a verbatim tra
 
 8. The student confirmed that a phone scan opened the deployed survey. A fresh reviewer without prior chat context repeated the synthetic review with an expanded prompt; the small result matched the baseline and did not establish an improvement.
 
+
+9. The student requested more edge cases and browser checks. The agent created a two-question test survey, tested editing and submissions, verified that closed surveys reject access, captured database evidence, checked a downloaded CSV, and verified signed-out browser access and protected routes. Remaining checks are recorded in the browser test cases.

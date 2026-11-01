@@ -204,12 +204,12 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Test survey creation.
 - [x] Test survey editing. (Title and question/choice ordering verified; other cases remain.)
 - [x] Test activation.
-- [ ] Test closing surveys.
+- [x] Test closing surveys. (Closed link unavailable and historical results retained.)
 - [x] Test QR-code links.
 - [x] Test student submissions.
 - [x] Test duplicate-submission prevention.
 - [x] Test results calculations.
-- [ ] Test CSV export.
+- [ ] Test CSV export. (Downloaded CSV parsed correctly; spreadsheet application check remains.)
 - [ ] Test mobile layout.
 - [ ] Test with at least two browsers.
 - [ ] Test unauthorized access attempts.
