@@ -18,3 +18,5 @@ This is a summary of the actual work in the Codex chat; it is not a verbatim tra
 10. The student tested the active survey on a phone and confirmed that a submission displayed the thank-you page.
 
 11. The student requested more testing. The agent added student-component cases, found and fixed failure handling for rejected load and submission requests, and incorporated independent review feedback on asynchronous tests and supported Node versions.
+
+12. Additional results-page tests reproduced a stale-request race when switching surveys. The agent added request-version checks and retry behavior, tested counts and export consistency with mocks, and requested an independent review.

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   HashRouter,
@@ -924,32 +924,41 @@ export function Student() {
     </main>
   );
 }
-function Results() {
+export function Results() {
   const { id } = useParams();
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [responses, setResponses] = useState<Response[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const requestVersion = useRef(0);
   async function load() {
     if (!id) return;
+    const version = ++requestVersion.current;
     setLoading(true);
     try {
       const { data, error } = await db.rpc("get_survey_results", {
         p_survey_id: id,
       });
+      if (version !== requestVersion.current) return;
       if (error) throw error;
       const snapshot = data as { survey: Survey; responses: Response[] };
       setSurvey(ordered(snapshot.survey));
       setResponses(snapshot.responses);
       setError("");
     } catch (e) {
-      setError(message(e));
+      if (version === requestVersion.current) setError(message(e));
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }
   useEffect(() => {
+    setSurvey(null);
+    setResponses([]);
+    setError("");
     void load();
+    return () => {
+      requestVersion.current++;
+    };
   }, [id]);
   function download() {
     if (!survey) return;
@@ -975,6 +984,10 @@ function Results() {
         )}
         {loading ? (
           <p>Loading results…</p>
+        ) : !survey && error ? (
+          <button className="secondary" onClick={() => void load()}>
+            Try again
+          </button>
         ) : (
           survey && (
             <>

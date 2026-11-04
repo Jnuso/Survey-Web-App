@@ -78,3 +78,8 @@ The deployed active student page opened in the background. Supabase showed two s
 ## Student form tests and recovery
 
 Added React component tests with a mocked backend for active-survey query filters, validation, successful and duplicate submissions, storage failure, retry, in-flight double clicks, route changes, late requests, and rejected promises. They found that a rejected request could leave the page loading or its submit button disabled; the student flow now reports an error and re-enables retry. An independent direct reviewer checked the changes and identified test timing and Node compatibility issues, which were corrected. Twenty automated tests and the production build passed. These component tests do not verify live database policies, network reliability, or Android behavior.
+
+
+## Results tests and race recovery
+
+Added mocked component tests for empty results, counts, percentages, retry after an initial error, recovery after a failed refresh, route changes with delayed responses, and passing the displayed snapshot to CSV export. A regression test reproduced a race where a late request for survey A could overwrite survey B; the results page now ignores superseded requests and clears previous survey data on route changes. Initial load failures now offer a Try again button. An independent direct reviewer examined the fix and tests. These tests do not establish database concurrency correctness or inspect real downloaded CSV contents.
