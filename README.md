@@ -4,7 +4,7 @@ A classroom polling app built with React, TypeScript, Vite, and Supabase. Studen
 
 ## Run locally
 
-1. Install Node.js 20.19+ or 22.12+ and run `npm install`.
+1. Install Node.js 22.12 or later in the 22.x line, Node 24.x, or Node 26 or later and run `npm install`.
 2. Create `.env` from `.env.example`. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the project URL and public publishable/anon key from Supabase. These values are public client configuration; never use a service-role or secret key in the frontend or repository.
 3. Complete the database setup below, then run `npm run dev`. Run `npm run build` and `npm test` to verify the production build and unit tests.
 

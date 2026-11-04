@@ -768,11 +768,11 @@ function Present() {
     </>
   );
 }
-function StudentRoute() {
+export function StudentRoute() {
   const { slug } = useParams();
   return <Student key={slug} />;
 }
-function Student() {
+export function Student() {
   const { slug } = useParams();
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -788,21 +788,23 @@ function Student() {
     setAnswers({});
     setError("");
     async function load() {
-      const { data, error } = await db
-        .from("surveys")
-        .select("*, questions(*, choices(*))")
-        .eq("public_slug", slug)
-        .eq("status", "active")
-        .maybeSingle();
-      if (!current) return;
-      if (error || !data) {
+      try {
+        const { data, error } = await db
+          .from("surveys")
+          .select("*, questions(*, choices(*))")
+          .eq("public_slug", slug)
+          .eq("status", "active")
+          .maybeSingle();
+        if (!current) return;
+        if (error || !data) throw error || new Error("Survey unavailable");
+        setSurvey(ordered(data as Survey));
+        setState("ready");
+      } catch {
+        if (!current) return;
         setError(
           "This survey is unavailable or no longer accepting responses.",
         );
         setState("error");
-      } else {
-        setSurvey(ordered(data as Survey));
-        setState("ready");
       }
     }
     void load();
@@ -831,24 +833,29 @@ function Student() {
       setError("Browser storage is unavailable. Enable it and try again.");
       return;
     }
-    const { error } = await db.rpc("submit_survey_response", {
-      p_survey_id: survey.id,
-      p_anonymous_token: token,
-      p_answers: Object.entries(answers).map(([question_id, choice_id]) => ({
-        question_id,
-        choice_id,
-      })),
-    });
-    setBusy(false);
-    if (error) {
-      setError(
-        error.message.includes("DUPLICATE_RESPONSE")
-          ? "You have already submitted a response to this survey."
-          : error.message.includes("SURVEY_NOT_ACTIVE")
-            ? "This survey is no longer accepting responses."
-            : "Your response could not be submitted. Please try again.",
-      );
-    } else setState("success");
+    try {
+      const { error } = await db.rpc("submit_survey_response", {
+        p_survey_id: survey.id,
+        p_anonymous_token: token,
+        p_answers: Object.entries(answers).map(([question_id, choice_id]) => ({
+          question_id,
+          choice_id,
+        })),
+      });
+      if (error) {
+        setError(
+          error.message.includes("DUPLICATE_RESPONSE")
+            ? "You have already submitted a response to this survey."
+            : error.message.includes("SURVEY_NOT_ACTIVE")
+              ? "This survey is no longer accepting responses."
+              : "Your response could not be submitted. Please try again.",
+        );
+      } else setState("success");
+    } catch {
+      setError("Your response could not be submitted. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   }
   if (state === "success")
     return (

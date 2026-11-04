@@ -73,3 +73,8 @@ The student reported that the active test survey opened on a physical phone and 
 ## Background verification — November 4, 2026
 
 The deployed active student page opened in the background. Supabase showed two stored responses for that survey, but their identity as the phone response was not independently established. Anonymous API attempts to read `responses` and `answers` and call `get_survey_results` were denied (HTTP 401, PostgreSQL code 42501). Five unit tests and the production build passed; Vite reported its existing bundle-size warning. `npm audit --omit=dev` found zero production dependency vulnerabilities. The Android emulator was not run because background interaction without interrupting the user had not been verified.
+
+
+## Student form tests and recovery
+
+Added React component tests with a mocked backend for active-survey query filters, validation, successful and duplicate submissions, storage failure, retry, in-flight double clicks, route changes, late requests, and rejected promises. They found that a rejected request could leave the page loading or its submit button disabled; the student flow now reports an error and re-enables retry. An independent direct reviewer checked the changes and identified test timing and Node compatibility issues, which were corrected. Twenty automated tests and the production build passed. These component tests do not verify live database policies, network reliability, or Android behavior.
