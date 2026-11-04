@@ -98,3 +98,8 @@ Mocked component tests cover signed-out redirects, invalid credentials, rejected
 ## Presentation tests and close safeguards
 
 Added mocked component tests for QR presentation, count loading, polling recovery, slow requests, close cancellation, duplicate clicks, zero-row updates, route changes, and independent polling and close errors. Review found that an update affecting zero rows could previously appear successful, a late close could redirect from another survey, and polling could erase close errors. The close now targets the active survey, requires a returned row, guards route changes, and keeps close errors separate. An unknown count no longer displays as zero. Fifty-nine automated tests and the production build passed. These tests mock Supabase and QR generation; the changed close update needs a live instructor-session check. The unresolved overlapping editor-save risk remains.
+
+
+## Dashboard component tests and mutation safeguards
+
+Mocked tests cover filtering, activation, cancellation, failed list loading and retry, close and delete outcomes, and leaving during activation or duplication. A failed list request previously left the dashboard loading; the dashboard now reports an error and offers retry. Close, archive, and delete now filter by the status displayed and require a returned row, and pending actions no longer redirect after leaving the dashboard. An independent review confirmed these paths and noted that status checks do not detect concurrent same-status edits; compare-and-swap revision handling is still needed for cross-tab protection. The changed update/delete query chains remain unverified against live Supabase. All 71 automated tests and the build passed locally.

@@ -219,26 +219,45 @@ export function Login() {
     </main>
   );
 }
-function Dashboard({ email }: { email: string }) {
+export function Dashboard({ email }: { email: string }) {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [loadFailed, setLoadFailed] = useState(false);
+  const loadVersion = useRef(0);
+  const actionVersion = useRef(0);
   const nav = useNavigate();
   async function load() {
+    const version = ++loadVersion.current;
     setLoading(true);
-    const { data, error } = await db
-      .from("surveys")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) setError(message(error));
-    else setSurveys(data as Survey[]);
-    setLoading(false);
+    try {
+      const { data, error } = await db
+        .from("surveys")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (version !== loadVersion.current) return;
+      if (error) throw error;
+      setSurveys(data as Survey[]);
+      setLoadFailed(false);
+      setError("");
+    } catch (e) {
+      if (version === loadVersion.current) {
+        setError(message(e));
+        setLoadFailed(true);
+      }
+    } finally {
+      if (version === loadVersion.current) setLoading(false);
+    }
   }
   useEffect(() => {
     void load();
+    return () => {
+      loadVersion.current++;
+      actionVersion.current++;
+    };
   }, []);
   async function action(s: Survey, kind: string) {
     if (
@@ -250,11 +269,13 @@ function Dashboard({ email }: { email: string }) {
       )
     )
       return;
+    const version = ++actionVersion.current;
     setBusy(s.id);
     setError("");
     try {
       if (kind === "duplicate") {
         const original = await surveyById(s.id);
+        if (version !== actionVersion.current) return;
         if (!original) throw new Error("Survey not found");
         const { data, error } = await db.rpc("save_survey", {
           p_survey_id: null,
@@ -266,6 +287,7 @@ function Dashboard({ email }: { email: string }) {
             choices: q.choices.map((c) => c.choice_text),
           })),
         });
+        if (version !== actionVersion.current) return;
         if (error) throw error;
         nav(`/surveys/${data}/edit`);
         return;
@@ -274,24 +296,33 @@ function Dashboard({ email }: { email: string }) {
         const { error } = await db.rpc("activate_survey", {
           p_survey_id: s.id,
         });
+        if (version !== actionVersion.current) return;
         if (error) throw error;
         nav(`/surveys/${s.id}/present`);
         return;
       }
       const request =
         kind === "delete"
-          ? db.from("surveys").delete().eq("id", s.id)
+          ? db.from("surveys").delete()
           : db
               .from("surveys")
-              .update({ status: kind === "close" ? "closed" : "archived" })
-              .eq("id", s.id);
-      const { error } = await request;
+              .update({ status: kind === "close" ? "closed" : "archived" });
+      const { data, error } = await request
+        .eq("id", s.id)
+        .eq("status", s.status)
+        .select("id")
+        .maybeSingle();
+      if (version !== actionVersion.current) return;
       if (error) throw error;
+      if (!data)
+        throw new Error(
+          "The survey could not be updated. Refresh and check its status and your access.",
+        );
       await load();
     } catch (e) {
-      setError(message(e));
+      if (version === actionVersion.current) setError(message(e));
     } finally {
-      setBusy("");
+      if (version === actionVersion.current) setBusy("");
     }
   }
   const visible = surveys.filter(
@@ -349,6 +380,10 @@ function Dashboard({ email }: { email: string }) {
         )}
         {loading ? (
           <p>Loading surveys…</p>
+        ) : loadFailed ? (
+          <button className="secondary" onClick={() => void load()}>
+            Try again
+          </button>
         ) : visible.length === 0 ? (
           <div className="panel empty">
             <h2>
