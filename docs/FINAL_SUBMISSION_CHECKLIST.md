@@ -10,7 +10,7 @@ Use this short checklist to prepare the HuskyCT submission. The detailed impleme
 - [ ] Check the student and instructor pages with keyboard navigation and a second browser; record any limitations. The phone submission and QR opening were reported successful.
 - [ ] Resolve or explicitly disclose the editor navigation/overlapping-save risk documented in `LEARNING_LOG.md`.
 - [ ] Review the outstanding access-control cases in the detailed test log. Anonymous response reads and survey writes were denied in earlier checks, but not every RLS and non-instructor case has been tested.
-- [x] Run the local tests and production build. On November 4, 35 tests and the build passed; Vite reported a bundle-size warning. Repeat if code changes before submission.
+- [x] Run the local tests and production build. On November 4, 47 tests and the build passed; Vite reported a bundle-size warning. Repeat if code changes before submission.
 
 ## Prepare required deliverables
 

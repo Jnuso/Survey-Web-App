@@ -8,6 +8,7 @@ import {
   Routes,
   useNavigate,
   useParams,
+  useMatch,
 } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import QRCode from "qrcode";
@@ -26,6 +27,7 @@ import {
   db,
   ordered,
   surveyById,
+  studentDb,
   type Response,
   type Survey,
 } from "./lib";
@@ -33,17 +35,43 @@ import "./style.css";
 
 const message = (e: unknown) =>
   e instanceof Error ? e.message : "Something went wrong. Please try again.";
-function App() {
+export function App() {
+  const studentRoute = useMatch("/s/:slug");
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(false);
+  const [authAttempt, setAuthAttempt] = useState(0);
   useEffect(() => {
-    db.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
+    let current = true;
+    let authChanged = false;
+    setLoading(true);
+    setAuthError(false);
+    Promise.resolve()
+      .then(() => db.auth.getSession())
+      .then(({ data, error }) => {
+        if (error) throw error;
+        if (current && !authChanged) setSession(data.session);
+      })
+      .catch(() => {
+        if (current && !authChanged) setAuthError(true);
+      })
+      .finally(() => {
+        if (current && !authChanged) setLoading(false);
+      });
+    const { data } = db.auth.onAuthStateChange((event, s) => {
+      if (event === "INITIAL_SESSION") return;
+      authChanged = true;
+      if (current) {
+        setSession(s);
+        setAuthError(false);
+        setLoading(false);
+      }
     });
-    const { data } = db.auth.onAuthStateChange((_event, s) => setSession(s));
-    return () => data.subscription.unsubscribe();
-  }, []);
+    return () => {
+      current = false;
+      data.subscription.unsubscribe();
+    };
+  }, [authAttempt]);
   if (!configured)
     return (
       <main className="center">
@@ -58,7 +86,24 @@ function App() {
         </div>
       </main>
     );
+  if (studentRoute)
+    return (
+      <Routes>
+        <Route path="/s/:slug" element={<StudentRoute />} />
+      </Routes>
+    );
   if (loading) return <main className="center">Loading…</main>;
+  if (authError)
+    return (
+      <main className="center">
+        <div className="panel">
+          <p role="alert">Unable to check your session. Please try again.</p>
+          <button onClick={() => setAuthAttempt((n) => n + 1)}>
+            Try again
+          </button>
+        </div>
+      </main>
+    );
   const guard = (component: React.ReactNode) =>
     session ? component : <Navigate to="/login" replace />;
   return (
@@ -116,7 +161,7 @@ function Landing() {
     </main>
   );
 }
-function Login() {
+export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -126,10 +171,15 @@ function Login() {
     e.preventDefault();
     setBusy(true);
     setError("");
-    const { error } = await db.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (error) setError("Unable to sign in. Check your email and password.");
-    else nav("/dashboard");
+    try {
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) setError("Unable to sign in. Check your email and password.");
+      else nav("/dashboard");
+    } catch {
+      setError("Unable to sign in. Check your email and password.");
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <main className="center">
@@ -852,7 +902,7 @@ export function Student() {
     setError("");
     async function load() {
       try {
-        const { data, error } = await db
+        const { data, error } = await studentDb
           .from("surveys")
           .select("*, questions(*, choices(*))")
           .eq("public_slug", slug)
@@ -897,7 +947,7 @@ export function Student() {
       return;
     }
     try {
-      const { error } = await db.rpc("submit_survey_response", {
+      const { error } = await studentDb.rpc("submit_survey_response", {
         p_survey_id: survey.id,
         p_anonymous_token: token,
         p_answers: Object.entries(answers).map(([question_id, choice_id]) => ({

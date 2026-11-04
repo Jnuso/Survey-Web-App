@@ -22,3 +22,5 @@ This is a summary of the actual work in the Codex chat; it is not a verbatim tra
 12. Additional results-page tests reproduced a stale-request race when switching surveys. The agent added request-version checks and retry behavior, tested counts and export consistency with mocks, and requested an independent review.
 
 13. The agent added editor tests and, following independent review, protected failed draft loads and controls during saves. The reviewer identified a remaining navigation and overlapping-save risk, which is recorded for further work.
+
+14. Authentication tests and independent review found rejected-session recovery problems and an indirect dependency between student requests and instructor authentication. The agent added retry handling, isolated the student client, and added component and stubbed-network tests.

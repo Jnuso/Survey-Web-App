@@ -7,6 +7,20 @@ export const db = createClient(
   url || "http://127.0.0.1:54321",
   key || "unconfigured",
 );
+// Student requests use an independent anonymous client and do not depend on
+// instructor session storage or refresh state.
+export const studentDb = createClient(
+  url || "http://127.0.0.1:54321",
+  key || "unconfigured",
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storageKey: "classroom-survey-student",
+    },
+  },
+);
 export type Choice = { id: string; choice_text: string; position: number };
 export type Question = {
   id: string;

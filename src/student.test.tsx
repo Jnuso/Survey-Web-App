@@ -18,7 +18,7 @@ vi.mock("./lib", () => ({
   ordered: (survey: unknown) => survey,
   createCsv: vi.fn(),
   surveyById: vi.fn(),
-  db: {
+  studentDb: {
     rpc: backend.rpc,
     from: () => ({
       select: () => ({
