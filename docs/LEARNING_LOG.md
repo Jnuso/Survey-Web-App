@@ -103,3 +103,8 @@ Added mocked component tests for QR presentation, count loading, polling recover
 ## Dashboard component tests and mutation safeguards
 
 Mocked tests cover filtering, activation, cancellation, failed list loading and retry, close and delete outcomes, and leaving during activation or duplication. A failed list request previously left the dashboard loading; the dashboard now reports an error and offers retry. Close, archive, and delete now filter by the status displayed and require a returned row, and pending actions no longer redirect after leaving the dashboard. An independent review confirmed these paths and noted that status checks do not detect concurrent same-status edits; compare-and-swap revision handling is still needed for cross-tab protection. The changed update/delete query chains remain unverified against live Supabase. All 71 automated tests and the build passed locally.
+
+
+## Student client request checks
+
+Using the installed Supabase SDK with a stubbed HTTP transport, added checks for the anonymous submission request body, duplicate error code and message, network failure and retry path, and absence of an instructor token on the request. The transport is simulated: this verifies client wiring but does not test live Supabase or database concurrency. An independent reviewer identified missing assertions, which were added.

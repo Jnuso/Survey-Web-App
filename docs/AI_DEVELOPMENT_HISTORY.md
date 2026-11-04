@@ -28,3 +28,5 @@ This is a summary of the actual work in the Codex chat; it is not a verbatim tra
 15. Presentation-page tests and independent review identified close-update and polling edge cases. The agent guarded stale requests, detected zero-row updates, preserved close errors, and added count-loading behavior; a live close check remains pending.
 
 16. The agent added dashboard tests, improved failed-load recovery and guarded stale actions, then independently reviewed remaining cross-tab concurrency and live integration limitations.
+
+17. The agent expanded simulated-network Supabase client checks and incorporated independent review to verify that requests reached the simulated transport, error codes were retained, and instructor tokens were not forwarded.
