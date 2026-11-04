@@ -9,7 +9,7 @@ Use this short checklist to prepare the HuskyCT submission. The detailed impleme
 - [ ] Open the downloaded CSV in a spreadsheet application and verify its columns and answers. A CSV was downloaded and parsed successfully, but it has not been checked in a spreadsheet application.
 - [ ] Check the student and instructor pages with keyboard navigation and a second browser; record any limitations. The phone submission and QR opening were reported successful.
 - [ ] Review the outstanding access-control cases in the detailed test log. Anonymous response reads and survey writes were denied in earlier checks, but not every RLS and non-instructor case has been tested.
-- [ ] Run the final local tests and production build; document their actual outcomes and any unresolved issues.
+- [x] Run the local tests and production build. On November 4, five tests and the build passed; Vite reported a bundle-size warning. Repeat if code changes before submission.
 
 ## Prepare required deliverables
 

@@ -68,3 +68,8 @@ The previously interrupted close action subsequently took effect: the test surve
 
 
 The student reported that the active test survey opened on a physical phone and that submitting fictional answers produced the thank-you confirmation. The instructor-side count for this specific response has not yet been checked.
+
+
+## Background verification — November 4, 2026
+
+The deployed active student page opened in the background. Supabase showed two stored responses for that survey, but their identity as the phone response was not independently established. Anonymous API attempts to read `responses` and `answers` and call `get_survey_results` were denied (HTTP 401, PostgreSQL code 42501). Five unit tests and the production build passed; Vite reported its existing bundle-size warning. `npm audit --omit=dev` found zero production dependency vulnerabilities. The Android emulator was not run because background interaction without interrupting the user had not been verified.
