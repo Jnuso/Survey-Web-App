@@ -389,7 +389,7 @@ const newQuestion = (): DraftQuestion => ({
   question_type: "multiple_choice",
   choices: ["", ""],
 });
-function Editor() {
+export function Editor() {
   const { id } = useParams();
   const nav = useNavigate();
   const [title, setTitle] = useState("");
@@ -398,10 +398,32 @@ function Editor() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(!!id);
   const [busy, setBusy] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const editorVersion = useRef(0);
   useEffect(() => {
-    if (!id) return;
+    editorVersion.current++;
+    setBusy(false);
+    setLoadFailed(false);
+    let current = true;
+    setError("");
+    if (!id) {
+      setTitle("");
+      setDescription("");
+      setQuestions([newQuestion()]);
+      setLoading(false);
+      return () => {
+        current = false;
+        editorVersion.current++;
+      };
+    }
+    setLoading(true);
+    setTitle("");
+    setDescription("");
+    setQuestions([newQuestion()]);
     surveyById(id)
       .then((s) => {
+        if (!current) return;
         if (!s) throw new Error("Survey not found");
         if (s.status !== "draft")
           throw new Error("Only draft surveys can be edited.");
@@ -416,9 +438,20 @@ function Editor() {
           })),
         );
       })
-      .catch((e) => setError(message(e)))
-      .finally(() => setLoading(false));
-  }, [id]);
+      .catch((e) => {
+        if (current) {
+          setError(message(e));
+          setLoadFailed(true);
+        }
+      })
+      .finally(() => {
+        if (current) setLoading(false);
+      });
+    return () => {
+      current = false;
+      editorVersion.current++;
+    };
+  }, [id, loadAttempt]);
   function change(i: number, patch: Partial<DraftQuestion>) {
     setQuestions((q) => q.map((v, n) => (n === i ? { ...v, ...patch } : v)));
   }
@@ -446,23 +479,48 @@ function Editor() {
       );
       return;
     }
+    const version = editorVersion.current;
     setBusy(true);
     setError("");
-    const { error } = await db.rpc("save_survey", {
-      p_survey_id: id || null,
-      p_title: title.trim(),
-      p_description: description.trim() || null,
-      p_questions: questions.map((q) => ({
-        question_text: q.question_text.trim(),
-        question_type: q.question_type,
-        choices: q.choices.map((c) => c.trim()),
-      })),
-    });
-    setBusy(false);
-    if (error) setError(message(error));
-    else nav("/dashboard");
+    try {
+      const { error } = await db.rpc("save_survey", {
+        p_survey_id: id || null,
+        p_title: title.trim(),
+        p_description: description.trim() || null,
+        p_questions: questions.map((q) => ({
+          question_text: q.question_text.trim(),
+          question_type: q.question_type,
+          choices: q.choices.map((c) => c.trim()),
+        })),
+      });
+      if (version !== editorVersion.current) return;
+      if (error) setError(message(error));
+      else nav("/dashboard");
+    } catch (e) {
+      if (version === editorVersion.current) setError(message(e));
+    } finally {
+      if (version === editorVersion.current) setBusy(false);
+    }
   }
   if (loading) return <main className="container">Loading survey…</main>;
+  if (loadFailed)
+    return (
+      <>
+        <Header />
+        <main className="container narrow">
+          <Link to="/dashboard">← Back to surveys</Link>
+          <p role="alert" className="error">
+            {error}
+          </p>
+          <button
+            className="secondary"
+            onClick={() => setLoadAttempt((n) => n + 1)}
+          >
+            Try again
+          </button>
+        </main>
+      </>
+    );
   return (
     <>
       <Header />
@@ -476,189 +534,194 @@ function Editor() {
           </div>
         </div>
         <form onSubmit={save}>
-          <section className="panel">
-            <h2>The details</h2>
-            <label>
-              Survey title
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                maxLength={200}
-              />
-            </label>
-            <label>
-              Description <span className="muted">(optional)</span>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-              />
-            </label>
-          </section>
-          {questions.map((q, i) => (
-            <section className="panel question-editor" key={q.key}>
-              <div className="row">
-                <h2>Question {i + 1}</h2>
-                <div className="actions">
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => move(i, i - 1)}
-                    disabled={i === 0}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => move(i, i + 1)}
-                    disabled={i === questions.length - 1}
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    className="text-button danger"
-                    onClick={() => {
-                      if (window.confirm("Delete this question?"))
-                        setQuestions((v) => v.filter((_, n) => n !== i));
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
+          <fieldset className="editor-fields" disabled={busy}>
+            <section className="panel">
+              <h2>The details</h2>
               <label>
-                Question
+                Survey title
                 <input
-                  value={q.question_text}
-                  onChange={(e) => change(i, { question_text: e.target.value })}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   required
+                  maxLength={200}
                 />
               </label>
               <label>
-                Question type
-                <select
-                  value={q.question_type}
-                  onChange={(e) => {
-                    const type = e.target
-                      .value as DraftQuestion["question_type"];
-                    if (
-                      q.question_type === "multiple_choice" &&
-                      q.choices.some((choice) => choice.trim()) &&
-                      !window.confirm(
-                        "Changing the question type will replace its answer choices. Continue?",
-                      )
-                    )
-                      return;
-                    change(i, {
-                      question_type: type,
-                      choices:
-                        type === "true_false" ? ["True", "False"] : ["", ""],
-                    });
-                  }}
-                >
-                  <option value="multiple_choice">Multiple choice</option>
-                  <option value="true_false">True / False</option>
-                </select>
+                Description <span className="muted">(optional)</span>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                />
               </label>
-              <p className="field-title">Answer choices</p>
-              {q.choices.map((choice, n) => (
-                <div className="choice-edit" key={n}>
-                  <label className="sr-only" htmlFor={`${q.key}-${n}`}>
-                    Choice {n + 1}
-                  </label>
+            </section>
+            {questions.map((q, i) => (
+              <section className="panel question-editor" key={q.key}>
+                <div className="row">
+                  <h2>Question {i + 1}</h2>
+                  <div className="actions">
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={() => move(i, i - 1)}
+                      disabled={i === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={() => move(i, i + 1)}
+                      disabled={i === questions.length - 1}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      className="text-button danger"
+                      onClick={() => {
+                        if (window.confirm("Delete this question?"))
+                          setQuestions((v) => v.filter((_, n) => n !== i));
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <label>
+                  Question
                   <input
-                    id={`${q.key}-${n}`}
-                    value={choice}
-                    disabled={q.question_type === "true_false"}
+                    value={q.question_text}
                     onChange={(e) =>
-                      change(i, {
-                        choices: q.choices.map((c, j) =>
-                          j === n ? e.target.value : c,
-                        ),
-                      })
+                      change(i, { question_text: e.target.value })
                     }
                     required
                   />
-                  <button
-                    type="button"
-                    className="text-button"
-                    aria-label={`Move choice ${n + 1} up`}
-                    disabled={q.question_type === "true_false" || n === 0}
-                    onClick={() => {
-                      const c = [...q.choices];
-                      [c[n - 1], c[n]] = [c[n], c[n - 1]];
-                      change(i, { choices: c });
-                    }}
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    className="text-button"
-                    aria-label={`Move choice ${n + 1} down`}
-                    disabled={
-                      q.question_type === "true_false" ||
-                      n === q.choices.length - 1
-                    }
-                    onClick={() => {
-                      const c = [...q.choices];
-                      [c[n + 1], c[n]] = [c[n], c[n + 1]];
-                      change(i, { choices: c });
-                    }}
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    className="text-button danger"
-                    disabled={
-                      q.question_type === "true_false" || q.choices.length <= 2
-                    }
-                    onClick={() => {
+                </label>
+                <label>
+                  Question type
+                  <select
+                    value={q.question_type}
+                    onChange={(e) => {
+                      const type = e.target
+                        .value as DraftQuestion["question_type"];
                       if (
-                        !choice.trim() ||
-                        window.confirm("Remove this answer choice?")
+                        q.question_type === "multiple_choice" &&
+                        q.choices.some((choice) => choice.trim()) &&
+                        !window.confirm(
+                          "Changing the question type will replace its answer choices. Continue?",
+                        )
                       )
-                        change(i, {
-                          choices: q.choices.filter((_, j) => j !== n),
-                        });
+                        return;
+                      change(i, {
+                        question_type: type,
+                        choices:
+                          type === "true_false" ? ["True", "False"] : ["", ""],
+                      });
                     }}
                   >
-                    Remove
+                    <option value="multiple_choice">Multiple choice</option>
+                    <option value="true_false">True / False</option>
+                  </select>
+                </label>
+                <p className="field-title">Answer choices</p>
+                {q.choices.map((choice, n) => (
+                  <div className="choice-edit" key={n}>
+                    <label className="sr-only" htmlFor={`${q.key}-${n}`}>
+                      Choice {n + 1}
+                    </label>
+                    <input
+                      id={`${q.key}-${n}`}
+                      value={choice}
+                      disabled={q.question_type === "true_false"}
+                      onChange={(e) =>
+                        change(i, {
+                          choices: q.choices.map((c, j) =>
+                            j === n ? e.target.value : c,
+                          ),
+                        })
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="text-button"
+                      aria-label={`Move choice ${n + 1} up`}
+                      disabled={q.question_type === "true_false" || n === 0}
+                      onClick={() => {
+                        const c = [...q.choices];
+                        [c[n - 1], c[n]] = [c[n], c[n - 1]];
+                        change(i, { choices: c });
+                      }}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="text-button"
+                      aria-label={`Move choice ${n + 1} down`}
+                      disabled={
+                        q.question_type === "true_false" ||
+                        n === q.choices.length - 1
+                      }
+                      onClick={() => {
+                        const c = [...q.choices];
+                        [c[n + 1], c[n]] = [c[n], c[n + 1]];
+                        change(i, { choices: c });
+                      }}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      className="text-button danger"
+                      disabled={
+                        q.question_type === "true_false" ||
+                        q.choices.length <= 2
+                      }
+                      onClick={() => {
+                        if (
+                          !choice.trim() ||
+                          window.confirm("Remove this answer choice?")
+                        )
+                          change(i, {
+                            choices: q.choices.filter((_, j) => j !== n),
+                          });
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                {q.question_type === "multiple_choice" && (
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => change(i, { choices: [...q.choices, ""] })}
+                  >
+                    + Add choice
                   </button>
-                </div>
-              ))}
-              {q.question_type === "multiple_choice" && (
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => change(i, { choices: [...q.choices, ""] })}
-                >
-                  + Add choice
-                </button>
-              )}
-            </section>
-          ))}
-          <div className="actions">
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => setQuestions((q) => [...q, newQuestion()])}
-            >
-              + Add question
-            </button>
-            <button disabled={busy || (!!error && !!id && !title)}>
-              {busy ? "Saving…" : "Save draft"}
-            </button>
-          </div>
-          {error && (
-            <p role="alert" className="error">
-              {error}
-            </p>
-          )}
+                )}
+              </section>
+            ))}
+            <div className="actions">
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => setQuestions((q) => [...q, newQuestion()])}
+              >
+                + Add question
+              </button>
+              <button disabled={busy || (!!error && !!id && !title)}>
+                {busy ? "Saving…" : "Save draft"}
+              </button>
+            </div>
+            {error && (
+              <p role="alert" className="error">
+                {error}
+              </p>
+            )}
+          </fieldset>
         </form>
       </main>
     </>

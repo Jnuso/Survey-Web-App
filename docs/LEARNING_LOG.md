@@ -83,3 +83,8 @@ Added React component tests with a mocked backend for active-survey query filter
 ## Results tests and race recovery
 
 Added mocked component tests for empty results, counts, percentages, retry after an initial error, recovery after a failed refresh, route changes with delayed responses, and passing the displayed snapshot to CSV export. A regression test reproduced a race where a late request for survey A could overwrite survey B; the results page now ignores superseded requests and clears previous survey data on route changes. Initial load failures now offer a Try again button. An independent direct reviewer examined the fix and tests. These tests do not establish database concurrency correctness or inspect real downloaded CSV contents.
+
+
+## Editor component tests and remaining save risk
+
+Mocked component tests cover saving, question-type confirmation, rejected saves, draft loading, and navigation during pending work. They reproduced and prompted fixes for late draft loads and saves affecting a different editor, editable controls during saving, and the blank editor shown after a failed draft load. The form is now disabled during saving and a load failure offers a retry rather than an editable blank draft. Independent review noted an unresolved case: leaving and reopening the same draft before its pending save finishes can allow another save, and a failure after leaving may not be reported to the instructor. Concurrent save ordering and navigation during saving need a stronger solution; avoid leaving a draft while saving. Component tests use mocked services and do not prove database transaction ordering.
