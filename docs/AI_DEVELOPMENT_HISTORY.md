@@ -24,3 +24,5 @@ This is a summary of the actual work in the Codex chat; it is not a verbatim tra
 13. The agent added editor tests and, following independent review, protected failed draft loads and controls during saves. The reviewer identified a remaining navigation and overlapping-save risk, which is recorded for further work.
 
 14. Authentication tests and independent review found rejected-session recovery problems and an indirect dependency between student requests and instructor authentication. The agent added retry handling, isolated the student client, and added component and stubbed-network tests.
+
+15. Presentation-page tests and independent review identified close-update and polling edge cases. The agent guarded stale requests, detected zero-row updates, preserved close errors, and added count-loading behavior; a live close check remains pending.

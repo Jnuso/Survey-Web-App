@@ -777,15 +777,25 @@ export function Editor() {
     </>
   );
 }
-function Present() {
+export function Present() {
   const { id } = useParams();
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [qr, setQr] = useState("");
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [closing, setClosing] = useState(false);
+  const [closeError, setCloseError] = useState("");
+  const closeVersion = useRef(0);
   const nav = useNavigate();
   useEffect(() => {
     if (!id) return;
+    closeVersion.current++;
+    setSurvey(null);
+    setQr("");
+    setCount(null);
+    setError("");
+    setCloseError("");
+    setClosing(false);
     let alive = true;
     let latestRequest = 0;
     let inFlight = false;
@@ -808,8 +818,9 @@ function Present() {
           .select("id", { count: "exact", head: true })
           .eq("survey_id", id!);
         if (error) throw error;
+        if (count === null) throw new Error("Unable to load response count.");
         if (alive && request === latestRequest) {
-          setCount(count || 0);
+          setCount(count);
           setError("");
         }
       } catch (e) {
@@ -822,6 +833,7 @@ function Present() {
     const timer = setInterval(() => void load(), 10000);
     return () => {
       alive = false;
+      closeVersion.current++;
       clearInterval(timer);
     };
   }, [id]);
@@ -832,12 +844,29 @@ function Present() {
       )
     )
       return;
-    const { error } = await db
-      .from("surveys")
-      .update({ status: "closed" })
-      .eq("id", id);
-    if (error) setError(message(error));
-    else nav("/dashboard");
+    const version = closeVersion.current;
+    setCloseError("");
+    setClosing(true);
+    try {
+      const { data, error } = await db
+        .from("surveys")
+        .update({ status: "closed" })
+        .eq("id", id)
+        .eq("status", "active")
+        .select("id")
+        .maybeSingle();
+      if (version !== closeVersion.current) return;
+      if (error) throw error;
+      if (!data)
+        throw new Error(
+          "The survey could not be closed. Refresh and check its status and your access.",
+        );
+      nav("/dashboard");
+    } catch (e) {
+      if (version === closeVersion.current) setCloseError(message(e));
+    } finally {
+      if (version === closeVersion.current) setClosing(false);
+    }
   }
   return (
     <>
@@ -860,8 +889,19 @@ function Present() {
               {import.meta.env.BASE_URL}#/s/{survey.public_slug}
             </p>
             <p className="response-count">
-              <strong>{count}</strong> responses
+              {count === null ? (
+                "Loading responses…"
+              ) : (
+                <>
+                  <strong>{count}</strong> responses
+                </>
+              )}
             </p>
+            {closeError && (
+              <p role="alert" className="error">
+                {closeError}
+              </p>
+            )}
             <div className="actions">
               <a
                 className="button secondary"
@@ -873,7 +913,9 @@ function Present() {
               <Link className="button secondary" to={`/surveys/${id}/results`}>
                 View results
               </Link>
-              <button onClick={() => void close()}>Close survey</button>
+              <button disabled={closing} onClick={() => void close()}>
+                {closing ? "Closing…" : "Close survey"}
+              </button>
             </div>
           </>
         )}

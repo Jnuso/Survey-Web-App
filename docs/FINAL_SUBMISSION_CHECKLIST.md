@@ -5,12 +5,13 @@ Use this short checklist to prepare the HuskyCT submission. The detailed impleme
 ## Finish verification
 
 - [ ] Sign in to the deployed instructor dashboard and confirm the phone submission appears in the active test survey's results. The student reported seeing the thank-you page; the instructor-side check is still pending.
+- [ ] Verify closing a disposable active survey in the deployed instructor interface after the updated close operation is deployed; retain the sample evidence.
 - [ ] Perform a final smoke test of the public app: confirm the instructor dashboard works, the active survey and QR link open, and a fictional student response appears in results. Use a fresh browser profile for a new response, and do not expose private information.
 - [ ] Open the downloaded CSV in a spreadsheet application and verify its columns and answers. A CSV was downloaded and parsed successfully, but it has not been checked in a spreadsheet application.
 - [ ] Check the student and instructor pages with keyboard navigation and a second browser; record any limitations. The phone submission and QR opening were reported successful.
 - [ ] Resolve or explicitly disclose the editor navigation/overlapping-save risk documented in `LEARNING_LOG.md`.
 - [ ] Review the outstanding access-control cases in the detailed test log. Anonymous response reads and survey writes were denied in earlier checks, but not every RLS and non-instructor case has been tested.
-- [x] Run the local tests and production build. On November 4, 47 tests and the build passed; Vite reported a bundle-size warning. Repeat if code changes before submission.
+- [x] Run the local tests and production build. On November 4, 59 tests and the build passed; Vite reported a bundle-size warning. Repeat if code changes before submission.
 
 ## Prepare required deliverables
 

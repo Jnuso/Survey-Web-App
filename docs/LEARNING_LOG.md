@@ -93,3 +93,8 @@ Mocked component tests cover saving, question-type confirmation, rejected saves,
 ## Authentication and independent student client
 
 Mocked component tests cover signed-out redirects, invalid credentials, rejected sign-in requests, session errors and retry, authentication-event ordering, and public student routes. Rejected authentication operations previously left the interface loading or disabled; it now reports a safe error and allows retry. Independent review found that Supabase data requests also consult the client auth session, so simply bypassing the instructor error screen was insufficient. Student reads and submissions now use a distinct non-persisted anonymous client. Tests using the installed SDK and stubbed HTTP show that this client neither consults the instructor session nor forwards a synthetic instructor token. Stubbed tests do not prove production behavior or replace live access-policy checks.
+
+
+## Presentation tests and close safeguards
+
+Added mocked component tests for QR presentation, count loading, polling recovery, slow requests, close cancellation, duplicate clicks, zero-row updates, route changes, and independent polling and close errors. Review found that an update affecting zero rows could previously appear successful, a late close could redirect from another survey, and polling could erase close errors. The close now targets the active survey, requires a returned row, guards route changes, and keeps close errors separate. An unknown count no longer displays as zero. Fifty-nine automated tests and the production build passed. These tests mock Supabase and QR generation; the changed close update needs a live instructor-session check. The unresolved overlapping editor-save risk remains.
