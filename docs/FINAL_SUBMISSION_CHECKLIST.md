@@ -9,7 +9,7 @@ Use this short checklist to prepare the HuskyCT submission. The detailed impleme
 - [ ] Complete a final smoke test of the public app (a fictional response was submitted and verified in results on November 5): confirm the instructor dashboard works, the active survey and QR link open, and a fictional student response appears in results. Use a fresh browser profile for a new response, and do not expose private information.
 - [x] Open the downloaded CSV in a spreadsheet application and verify its columns and answers. Excel displayed separate columns and fictional answers TRUE and Testing on November 5; narrow columns clipped longer values visually, which were verified in the raw CSV.
 - [ ] Check the student and instructor pages with keyboard navigation and a second browser; record any limitations. The phone submission and QR opening were reported successful.
-- [ ] Resolve or explicitly disclose the editor navigation/overlapping-save risk documented in `LEARNING_LOG.md`.
+- [x] Disclose the unresolved editor navigation and overlapping-save risk and its workaround in the development summary; a version-based fix remains future work.
 - [ ] Review the outstanding access-control cases in the detailed test log. Anonymous response reads and survey writes were denied in earlier checks, but not every RLS and non-instructor case has been tested.
 - [x] Run the local tests and production build. On November 5, 104 tests passed with one worker and a 20-second timeout; the earlier run timed out and a related test also failed. The latest production build passed with a Vite bundle-size warning. Repeat if code changes before submission.
 
