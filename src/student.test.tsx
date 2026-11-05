@@ -119,6 +119,30 @@ describe("student survey", () => {
     );
     expect(localStorage.getItem("classroom-survey-token")).toBeTruthy();
   });
+  it("submits only the final choice when a student changes an answer", async () => {
+    const user = userEvent.setup();
+    showSurvey();
+    await answerBoth(user);
+    await user.click(screen.getByLabelText("No"));
+    expect((screen.getByLabelText("Yes") as HTMLInputElement).checked).toBe(
+      false,
+    );
+    expect((screen.getByLabelText("No") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    await screen.findByRole("heading", { name: "Thank you!" });
+    expect(backend.rpc).toHaveBeenCalledWith(
+      "submit_survey_response",
+      expect.objectContaining({
+        p_answers: expect.arrayContaining([
+          { question_id: "q1", choice_id: "no" },
+          { question_id: "q2", choice_id: "sql" },
+        ]),
+      }),
+    );
+    expect(backend.rpc.mock.calls[0][1].p_answers).toHaveLength(2);
+  });
   it.each([
     ["DUPLICATE_RESPONSE", /already submitted/i],
     ["SURVEY_NOT_ACTIVE", /no longer accepting responses/i],
