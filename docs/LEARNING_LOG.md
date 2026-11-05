@@ -131,3 +131,6 @@ A disposable draft was created and archived, then duplicated. The duplicate reta
 
 
 On November 5, a full run with two workers had three timeouts and one subsequent failure; a repeat using one worker and a 20-second per-test timeout passed all 104 tests. The constrained run took approximately 257 seconds, so the earlier failures should not be represented as a clean first pass.
+
+
+On November 5, the previously downloaded fictional-response CSV was opened in Excel. The fields appeared in separate columns and the answers displayed as TRUE and Testing. Long headers and the response ID were clipped by the default column widths; the full values were verified in the CSV text. GitHub Actions run 42001432449 for commit 02db831 completed successfully.
