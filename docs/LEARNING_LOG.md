@@ -113,3 +113,8 @@ Using the installed Supabase SDK with a stubbed HTTP transport, added checks for
 ## Keyboard and editor labels
 
 Added a simulated keyboard submission test and named editor question regions and controls so repeated choices can be distinguished. A reorder test checks that the labels follow the correct question. In a hidden browser, Tab and arrow keys reached and selected choices and then focused Submit; no submission was made in that browser check. This is not a screen-reader or full keyboard accessibility audit. The full suite passed 76 tests with two workers, and the production build passed with its existing bundle-size warning. An earlier parallel run timed out one test under load.
+
+
+## Additional validation and export tests
+
+Added tests for multi-question CSV escaping and answer mapping, per-question results percentages, duplication payloads, and editor validation and recovery. The editor now reports whitespace-only survey titles before sending a save request. The full suite passed 82 tests with two workers on November 4; the production build passed after the title change with its existing bundle-size warning. Component tests use a mocked backend and do not replace outstanding live instructor and database checks.
