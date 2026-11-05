@@ -105,6 +105,28 @@ describe("instructor authentication", () => {
       password: "test-password",
     });
   });
+  it("prevents repeated sign-in attempts while a request is pending", async () => {
+    let finish!: (result: unknown) => void;
+    backend.signIn.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const user = userEvent.setup();
+    renderLogin();
+    await fillCredentials(user);
+    const button = screen.getByRole("button", { name: "Sign in" });
+    await user.click(button);
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    await user.click(button);
+    expect(backend.signIn).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      finish({ data: {}, error: null });
+    });
+    expect(
+      await screen.findByRole("heading", { name: "Dashboard destination" }),
+    ).toBeTruthy();
+  });
   it("recovers if the sign-in request rejects", async () => {
     backend.signIn.mockRejectedValueOnce(new Error("network failed"));
     const user = userEvent.setup();
