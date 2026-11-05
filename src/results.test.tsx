@@ -279,4 +279,29 @@ describe("results page", () => {
     await screen.findByText("2 responses");
     expect(screen.queryByRole("alert")).toBeNull();
   });
+  it("keeps the previous snapshot available for export after a failed refresh", async () => {
+    const initial = snapshot([response("a", "yes")]);
+    backend.rpc
+      .mockResolvedValueOnce({ data: initial, error: null })
+      .mockResolvedValueOnce({
+        data: null,
+        error: new Error("refresh failed"),
+      });
+    vi.stubGlobal("URL", {
+      ...URL,
+      createObjectURL: vi.fn(() => "blob:test"),
+      revokeObjectURL: vi.fn(),
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const user = userEvent.setup();
+    showResults();
+    await screen.findByText("1 response");
+    await user.click(screen.getByRole("button", { name: "Refresh" }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /refresh failed/,
+    );
+    expect(screen.getByText("1 response")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Export CSV" }));
+    expect(backend.csv).toHaveBeenCalledWith(initial.survey, initial.responses);
+  });
 });
