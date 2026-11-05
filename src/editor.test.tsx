@@ -55,6 +55,33 @@ async function completeForm(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText("Choice 2"), "No");
 }
 describe("survey editor", () => {
+  it("preserves a filled question when deletion is cancelled", async () => {
+    const user = userEvent.setup();
+    showEditor();
+    await completeForm(user);
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    await user.click(screen.getByRole("button", { name: "Delete question 1" }));
+    expect(
+      (screen.getByLabelText("Question", { exact: true }) as HTMLInputElement)
+        .value,
+    ).toBe("Ready?");
+    expect((screen.getByLabelText("Choice 1") as HTMLInputElement).value).toBe(
+      "Yes",
+    );
+    await user.click(screen.getByRole("button", { name: "Save draft" }));
+    expect(backend.rpc).toHaveBeenCalledWith(
+      "save_survey",
+      expect.objectContaining({
+        p_questions: [
+          {
+            question_text: "Ready?",
+            question_type: "multiple_choice",
+            choices: ["Yes", "No"],
+          },
+        ],
+      }),
+    );
+  });
   it.each(["active", "closed", "archived"])(
     "does not offer editing for a %s survey",
     async (status) => {
