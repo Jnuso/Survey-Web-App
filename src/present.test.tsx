@@ -268,6 +268,42 @@ describe("survey presentation", () => {
       await screen.findByRole("heading", { name: "Survey B" }),
     ).toBeTruthy();
   });
+  it("ignores a late response count from the previous presentation", async () => {
+    let finishOld!: (v: unknown) => void;
+    backend.survey
+      .mockResolvedValueOnce(survey)
+      .mockResolvedValueOnce({
+        ...survey,
+        id: "b",
+        title: "Survey B",
+        public_slug: "b",
+      });
+    backend.count
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finishOld = resolve;
+        }),
+      )
+      .mockResolvedValueOnce({ count: 8, error: null });
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/surveys/a/present"]}>
+        <Link to="/surveys/b/present">Open B</Link>
+        <Routes>
+          <Route path="/surveys/:id/present" element={<Present />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await screen.findByRole("heading", { name: "Live survey" });
+    await user.click(screen.getByText("Open B"));
+    await screen.findByRole("heading", { name: "Survey B" });
+    expect(await screen.findByText("8")).toBeTruthy();
+    await act(async () => {
+      finishOld({ count: 99, error: null });
+    });
+    expect(screen.getByText("8")).toBeTruthy();
+    expect(screen.queryByText("99")).toBeNull();
+  });
   it("does not show zero while the first response count is still loading", async () => {
     let finish!: (v: unknown) => void;
     backend.count.mockReturnValueOnce(
