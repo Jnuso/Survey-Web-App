@@ -155,6 +155,37 @@ describe("survey editor", () => {
       }),
     );
   });
+  it("saves reordered questions with their own answer choices", async () => {
+    const user = userEvent.setup();
+    showEditor();
+    await completeForm(user);
+    await user.click(screen.getByRole("button", { name: "+ Add question" }));
+    const second = within(screen.getByRole("region", { name: "Question 2" }));
+    await user.type(second.getByLabelText("Question"), "Finished?");
+    await user.type(second.getByLabelText("Choice 1"), "Done");
+    await user.type(second.getByLabelText("Choice 2"), "Later");
+    await user.click(
+      screen.getByRole("button", { name: "Move question 2 up" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Save draft" }));
+    expect(backend.rpc).toHaveBeenCalledWith(
+      "save_survey",
+      expect.objectContaining({
+        p_questions: [
+          {
+            question_text: "Finished?",
+            question_type: "multiple_choice",
+            choices: ["Done", "Later"],
+          },
+          {
+            question_text: "Ready?",
+            question_type: "multiple_choice",
+            choices: ["Yes", "No"],
+          },
+        ],
+      }),
+    );
+  });
   it("does not replace filled choices when the type-change warning is cancelled", async () => {
     const user = userEvent.setup();
     showEditor();
