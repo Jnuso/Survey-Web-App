@@ -114,6 +114,62 @@ describe("instructor dashboard", () => {
       p_survey_id: "b",
     });
   });
+  it("duplicates question content into a new survey without reusing IDs", async () => {
+    backend.survey.mockResolvedValueOnce({
+      questions: [
+        {
+          id: "original-q",
+          question_text: "Ready?",
+          question_type: "multiple_choice",
+          choices: [
+            { id: "original-c", choice_text: "Yes" },
+            { id: "other-c", choice_text: "No" },
+          ],
+        },
+        {
+          id: "original-q2",
+          question_text: "Finished?",
+          question_type: "true_false",
+          choices: [
+            { id: "t", choice_text: "True" },
+            { id: "f", choice_text: "False" },
+          ],
+        },
+      ],
+    });
+    backend.rpc.mockResolvedValueOnce({ data: "new-id", error: null });
+    const user = userEvent.setup();
+    show();
+    const heading = await screen.findByRole("heading", {
+      name: "Draft Survey",
+    });
+    await user.click(
+      within(heading.closest("article")!).getByRole("button", {
+        name: "Duplicate",
+      }),
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Editor destination" }),
+    ).toBeTruthy();
+    expect(backend.survey).toHaveBeenCalledWith("b");
+    expect(backend.rpc).toHaveBeenCalledWith("save_survey", {
+      p_survey_id: null,
+      p_title: "Copy of Draft Survey",
+      p_description: undefined,
+      p_questions: [
+        {
+          question_text: "Ready?",
+          question_type: "multiple_choice",
+          choices: ["Yes", "No"],
+        },
+        {
+          question_text: "Finished?",
+          question_type: "true_false",
+          choices: ["True", "False"],
+        },
+      ],
+    });
+  });
   it("does not mutate when deletion is cancelled", async () => {
     const user = userEvent.setup();
     vi.spyOn(window, "confirm").mockReturnValue(false);
