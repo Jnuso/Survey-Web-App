@@ -55,6 +55,42 @@ async function completeForm(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText("Choice 2"), "No");
 }
 describe("survey editor", () => {
+  it("keeps at least two choices and respects cancellation when removing a filled choice", async () => {
+    const user = userEvent.setup();
+    showEditor();
+    await completeForm(user);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Remove choice 1 from question 1",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    await user.click(screen.getByRole("button", { name: "+ Add choice" }));
+    await user.type(screen.getByLabelText("Choice 3"), "Maybe");
+    const confirm = vi
+      .spyOn(window, "confirm")
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+    await user.click(
+      screen.getByRole("button", { name: "Remove choice 3 from question 1" }),
+    );
+    expect((screen.getByLabelText("Choice 3") as HTMLInputElement).value).toBe(
+      "Maybe",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Remove choice 3 from question 1" }),
+    );
+    expect(screen.queryByLabelText("Choice 3")).toBeNull();
+    expect(confirm).toHaveBeenCalledTimes(2);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Remove choice 1 from question 1",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
   it("preserves a filled question when deletion is cancelled", async () => {
     const user = userEvent.setup();
     showEditor();
