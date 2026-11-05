@@ -55,6 +55,22 @@ async function completeForm(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText("Choice 2"), "No");
 }
 describe("survey editor", () => {
+  it.each(["active", "closed", "archived"])(
+    "does not offer editing for a %s survey",
+    async (status) => {
+      backend.survey.mockResolvedValueOnce({
+        ...draft("a", "Existing survey"),
+        status,
+      });
+      showEditor("/surveys/a/edit");
+      expect((await screen.findByRole("alert")).textContent).toMatch(
+        /only draft surveys can be edited/i,
+      );
+      expect(screen.queryByLabelText("Survey title")).toBeNull();
+      expect(screen.queryByRole("button", { name: "Save draft" })).toBeNull();
+      expect(backend.rpc).not.toHaveBeenCalled();
+    },
+  );
   it("rejects a title containing only whitespace before saving", async () => {
     const user = userEvent.setup();
     showEditor();
