@@ -98,6 +98,25 @@ describe("student survey", () => {
     );
     expect(backend.rpc).not.toHaveBeenCalled();
   });
+  it("retains a partial answer so the student can finish after validation", async () => {
+    const user = userEvent.setup();
+    showSurvey();
+    await user.click(await screen.findByLabelText("Yes"));
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /answer every question/i,
+    );
+    expect(backend.rpc).not.toHaveBeenCalled();
+    expect((screen.getByLabelText("Yes") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    await user.click(screen.getByLabelText("SQL"));
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    expect(
+      await screen.findByRole("heading", { name: "Thank you!" }),
+    ).toBeTruthy();
+    expect(backend.rpc).toHaveBeenCalledTimes(1);
+  });
   it("sends both selected answers and shows confirmation on success", async () => {
     const user = userEvent.setup();
     showSurvey();
