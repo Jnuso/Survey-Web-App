@@ -2,9 +2,11 @@
 
 Use this short checklist to prepare the HuskyCT submission. The detailed implementation roadmap is in [TODO.md](../TODO.md), and the precise test history is in [Browser Test Cases](BROWSER_TEST_CASES.md). Check an item only after verifying it.
 
+See [Final audit, November 5](FINAL_AUDIT.md) for the latest evidence and order of work.
+
 ## Finish verification
 
-- [ ] Sign in to the deployed instructor dashboard and confirm the phone submission appears in the active test survey's results. The student reported seeing the thank-you page; the instructor-side check is still pending.
+- [ ] Repeat one identifiable fictional phone submission and verify its answer and count in instructor results. Previous phone success was reported, but anonymous totals cannot identify which earlier record came from the phone.
 - [ ] Verify the updated close and delete operations using disposable surveys. On November 5, archive succeeded on a disposable draft, but the close confirmation stalled and the disposable survey remained active.
 - [ ] Complete a final smoke test of the public app (a fictional response was submitted and verified in results on November 5): confirm the instructor dashboard works, the active survey and QR link open, and a fictional student response appears in results. Use a fresh browser profile for a new response, and do not expose private information.
 - [x] Open the downloaded CSV in a spreadsheet application and verify its columns and answers. Excel displayed separate columns and fictional answers TRUE and Testing on November 5; narrow columns clipped longer values visually, which were verified in the raw CSV.

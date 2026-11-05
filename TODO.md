@@ -89,7 +89,7 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Validate required fields.
 - [x] Save a survey as Draft.
 - [x] Load an existing survey for editing.
-- [x] Prevent editing an active survey unless it is first closed.
+- [x] Allow editing only draft surveys. Closed surveys must be duplicated to edit their content.
 
 ---
 
@@ -98,8 +98,8 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Add activation logic.
 - [x] Ensure at most one survey is Active.
 - [x] Automatically close the previously active survey.
-- [ ] Generate a public survey slug or identifier.
-- [ ] Generate the public survey URL.
+- [x] Generate a public survey slug or identifier. (Activation uses the survey UUID.)
+- [x] Generate the public survey URL. (Includes the GitHub Pages project path.)
 - [x] Generate a QR code from the public URL.
 - [x] Create a Present Survey page.
 - [x] Display survey title and QR code.
@@ -113,8 +113,8 @@ This roadmap tracks implementation. A checked implementation item means code exi
 
 - [x] Create the public route `/s/:surveyId`.
 - [x] Load the requested active survey.
-- [ ] Show an error if the survey does not exist.
-- [ ] Show a message if the survey is closed.
+- [x] Show an unavailable message if the survey does not exist.
+- [x] Show an unavailable message if the survey is closed.
 - [x] Render survey title and description.
 - [x] Render Multiple Choice questions.
 - [x] Render True / False questions.
@@ -169,7 +169,7 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Include submission timestamp.
 - [x] Include each question and answer.
 - [x] Create safe CSV escaping.
-- [ ] Test export with spreadsheet applications.
+- [x] Test export with spreadsheet applications. (Excel verified November 5.)
 
 ---
 
@@ -204,12 +204,12 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Test survey creation.
 - [x] Test survey editing. (Title and question/choice ordering verified; other cases remain.)
 - [x] Test activation.
-- [x] Test closing surveys. (Closed link unavailable and historical results retained.)
+- [ ] Finish the live close-button check. Earlier closed-link and retained-results checks passed; the latest disposable survey close confirmation did not complete.
 - [x] Test QR-code links.
 - [x] Test student submissions.
 - [x] Test duplicate-submission prevention.
 - [x] Test results calculations.
-- [ ] Test CSV export. (Downloaded CSV parsed correctly; spreadsheet application check remains.)
+- [x] Test CSV export. (Downloaded CSV parsed correctly and opened in Excel.)
 - [ ] Test mobile layout.
 - [ ] Test with at least two browsers.
 - [ ] Test unauthorized access attempts.
