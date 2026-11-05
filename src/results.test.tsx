@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 const backend = vi.hoisted(() => ({ rpc: vi.fn(), csv: vi.fn() }));
@@ -96,6 +103,46 @@ describe("results page", () => {
     await screen.findByText("3 responses");
     expect(screen.getByText("2 · 66.7%")).toBeTruthy();
     expect(screen.getByText("1 · 33.3%")).toBeTruthy();
+  });
+  it("calculates each question separately when a response has no answer for it", async () => {
+    const second = {
+      id: "q2",
+      question_text: "Finished?",
+      choices: [
+        { id: "done", choice_text: "Done" },
+        { id: "later", choice_text: "Later" },
+      ],
+    };
+    backend.rpc.mockResolvedValue({
+      data: {
+        survey: { ...survey, questions: [...survey.questions, second] },
+        responses: [
+          {
+            ...response("a", "yes"),
+            answers: [
+              { question_id: "q1", choice_id: "yes" },
+              { question_id: "q2", choice_id: "done" },
+            ],
+          },
+          response("b", "no"),
+          {
+            ...response("c", "yes"),
+            answers: [{ question_id: "q2", choice_id: "later" }],
+          },
+        ],
+      },
+      error: null,
+    });
+    showResults();
+    await screen.findByText("3 responses");
+    const first = screen
+      .getByRole("heading", { name: "Ready?" })
+      .closest("section")!;
+    const next = screen
+      .getByRole("heading", { name: "Finished?" })
+      .closest("section")!;
+    expect(within(first).getAllByText("1 · 50%")).toHaveLength(2);
+    expect(within(next).getAllByText("1 · 50%")).toHaveLength(2);
   });
   it("refreshes counts and clears a previous load error after recovery", async () => {
     backend.rpc
