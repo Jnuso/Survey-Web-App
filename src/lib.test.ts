@@ -59,6 +59,46 @@ describe("CSV export", () => {
     }
     expect(csvCell("ordinary text")).toBe('"ordinary text"');
   });
+  it("matches out-of-order answers to question columns and escapes exported text", () => {
+    const survey = {
+      questions: [
+        {
+          id: "q1",
+          question_text: "=First?",
+          choices: [{ id: "a", choice_text: 'Yes, "please"' }],
+        },
+        {
+          id: "q2",
+          question_text: "Second?",
+          choices: [{ id: "b", choice_text: "+formula" }],
+        },
+        {
+          id: "q3",
+          question_text: "Third?",
+          choices: [{ id: "c", choice_text: "Other" }],
+        },
+      ],
+    } as unknown as Survey;
+    expect(
+      createCsv(survey, [
+        {
+          id: "r1",
+          submitted_at: "today",
+          answers: [
+            { question_id: "q2", choice_id: "b" },
+            { question_id: "q1", choice_id: "a" },
+          ],
+        },
+        {
+          id: "r2",
+          submitted_at: "tomorrow",
+          answers: [{ question_id: "q3", choice_id: "c" }],
+        },
+      ]),
+    ).toBe(
+      '"response_id","submitted_at","\'=First?","Second?","Third?"\r\n"r1","today","Yes, ""please""","\'+formula",""\r\n"r2","tomorrow","","","Other"',
+    );
+  });
   it("keeps every response once in a large export", () => {
     const survey = { questions: [] } as unknown as Survey;
     const responses = Array.from({ length: 601 }, (_, i) => ({
