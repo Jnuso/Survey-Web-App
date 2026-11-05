@@ -641,13 +641,18 @@ export function Editor() {
               </label>
             </section>
             {questions.map((q, i) => (
-              <section className="panel question-editor" key={q.key}>
+              <section
+                className="panel question-editor"
+                key={q.key}
+                aria-labelledby={`question-heading-${q.key}`}
+              >
                 <div className="row">
-                  <h2>Question {i + 1}</h2>
+                  <h2 id={`question-heading-${q.key}`}>Question {i + 1}</h2>
                   <div className="actions">
                     <button
                       type="button"
                       className="text-button"
+                      aria-label={`Move question ${i + 1} up`}
                       onClick={() => move(i, i - 1)}
                       disabled={i === 0}
                     >
@@ -656,6 +661,7 @@ export function Editor() {
                     <button
                       type="button"
                       className="text-button"
+                      aria-label={`Move question ${i + 1} down`}
                       onClick={() => move(i, i + 1)}
                       disabled={i === questions.length - 1}
                     >
@@ -664,6 +670,7 @@ export function Editor() {
                     <button
                       type="button"
                       className="text-button danger"
+                      aria-label={`Delete question ${i + 1}`}
                       onClick={() => {
                         if (window.confirm("Delete this question?"))
                           setQuestions((v) => v.filter((_, n) => n !== i));
@@ -731,7 +738,7 @@ export function Editor() {
                     <button
                       type="button"
                       className="text-button"
-                      aria-label={`Move choice ${n + 1} up`}
+                      aria-label={`Move choice ${n + 1} up in question ${i + 1}`}
                       disabled={q.question_type === "true_false" || n === 0}
                       onClick={() => {
                         const c = [...q.choices];
@@ -744,7 +751,7 @@ export function Editor() {
                     <button
                       type="button"
                       className="text-button"
-                      aria-label={`Move choice ${n + 1} down`}
+                      aria-label={`Move choice ${n + 1} down in question ${i + 1}`}
                       disabled={
                         q.question_type === "true_false" ||
                         n === q.choices.length - 1
@@ -760,6 +767,7 @@ export function Editor() {
                     <button
                       type="button"
                       className="text-button danger"
+                      aria-label={`Remove choice ${n + 1} from question ${i + 1}`}
                       disabled={
                         q.question_type === "true_false" ||
                         q.choices.length <= 2

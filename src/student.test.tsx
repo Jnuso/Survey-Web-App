@@ -78,6 +78,7 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   vi.clearAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("student survey", () => {
@@ -309,5 +310,41 @@ describe("student survey", () => {
       await screen.findByRole("heading", { name: "Survey unavailable" }),
     ).toBeTruthy();
     expect(screen.queryByText("connection interrupted")).toBeNull();
+  });
+  it("allows a student to answer and submit using the keyboard", async () => {
+    // jsdom does not provide CSS.escape; these fixture radio names are simple identifiers.
+    vi.stubGlobal("CSS", { escape: (value: string) => value });
+    const user = userEvent.setup();
+    showSurvey();
+    await screen.findByRole("heading", { name: "Class check-in" });
+    await user.tab();
+    expect(document.activeElement).toBe(screen.getByLabelText("Yes"));
+    await user.keyboard("{ArrowDown}");
+    expect((screen.getByLabelText("No") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    await user.tab();
+    expect(document.activeElement).toBe(screen.getByLabelText("React"));
+    await user.keyboard("{ArrowDown}");
+    expect((screen.getByLabelText("SQL") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    await user.tab();
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: /submit response/i }),
+    );
+    await user.keyboard("{Enter}");
+    expect(
+      await screen.findByRole("heading", { name: "Thank you!" }),
+    ).toBeTruthy();
+    expect(backend.rpc).toHaveBeenCalledWith(
+      "submit_survey_response",
+      expect.objectContaining({
+        p_answers: expect.arrayContaining([
+          { question_id: "q1", choice_id: "no" },
+          { question_id: "q2", choice_id: "sql" },
+        ]),
+      }),
+    );
   });
 });

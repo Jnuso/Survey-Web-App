@@ -108,3 +108,8 @@ Mocked tests cover filtering, activation, cancellation, failed list loading and 
 ## Student client request checks
 
 Using the installed Supabase SDK with a stubbed HTTP transport, added checks for the anonymous submission request body, duplicate error code and message, network failure and retry path, and absence of an instructor token on the request. The transport is simulated: this verifies client wiring but does not test live Supabase or database concurrency. An independent reviewer identified missing assertions, which were added.
+
+
+## Keyboard and editor labels
+
+Added a simulated keyboard submission test and named editor question regions and controls so repeated choices can be distinguished. A reorder test checks that the labels follow the correct question. In a hidden browser, Tab and arrow keys reached and selected choices and then focused Submit; no submission was made in that browser check. This is not a screen-reader or full keyboard accessibility audit. The full suite passed 76 tests with two workers, and the production build passed with its existing bundle-size warning. An earlier parallel run timed out one test under load.

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 const backend = vi.hoisted(() => ({ rpc: vi.fn(), survey: vi.fn() }));
@@ -240,6 +240,68 @@ describe("survey editor", () => {
     });
     expect(
       await screen.findByRole("heading", { name: "Dashboard destination" }),
+    ).toBeTruthy();
+  });
+  it("provides meaningful names for question controls", async () => {
+    const user = userEvent.setup();
+    showEditor();
+    await user.click(screen.getByRole("button", { name: "+ Add question" }));
+    await user.type(
+      within(screen.getByRole("region", { name: "Question 1" })).getByLabelText(
+        "Question",
+      ),
+      "First",
+    );
+    await user.type(
+      within(screen.getByRole("region", { name: "Question 2" })).getByLabelText(
+        "Question",
+      ),
+      "Second",
+    );
+    expect(
+      screen.getByRole("button", { name: "Move question 1 down" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Move question 2 up" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Delete question 2" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Remove choice 1 from question 1" }),
+    ).toBeTruthy();
+    expect(
+      within(screen.getByRole("region", { name: "Question 2" })).getByLabelText(
+        "Choice 1",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Move choice 1 down in question 2" }),
+    ).toBeTruthy();
+    await user.click(
+      screen.getByRole("button", { name: "Move question 2 up" }),
+    );
+    expect(
+      (
+        within(
+          screen.getByRole("region", { name: "Question 1" }),
+        ).getByLabelText("Question") as HTMLInputElement
+      ).value,
+    ).toBe("Second");
+    expect(
+      (
+        within(
+          screen.getByRole("region", { name: "Question 2" }),
+        ).getByLabelText("Question") as HTMLInputElement
+      ).value,
+    ).toBe("First");
+    expect(
+      within(screen.getByRole("region", { name: "Question 1" })).getByLabelText(
+        "Choice 1",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Move choice 1 down in question 1" }),
     ).toBeTruthy();
   });
 });
