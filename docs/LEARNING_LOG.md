@@ -118,3 +118,8 @@ Added a simulated keyboard submission test and named editor question regions and
 ## Additional validation and export tests
 
 Added tests for multi-question CSV escaping and answer mapping, per-question results percentages, duplication payloads, and editor validation and recovery. The editor now reports whitespace-only survey titles before sending a save request. The full suite passed 82 tests with two workers on November 4; the production build passed after the title change with its existing bundle-size warning. Component tests use a mocked backend and do not replace outstanding live instructor and database checks.
+
+
+## Expanded workflow checks
+
+Added mocked tests for student storage and lost-response retries, presentation route changes, failed result refresh and export, dashboard activation and archive, and editor restrictions, ordering, and cancelled deletion. The full suite passed 94 tests with two workers on November 4. Live instructor, database, device, and accessibility checks remain as listed in the submission checklist.
