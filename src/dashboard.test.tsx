@@ -213,6 +213,28 @@ describe("instructor dashboard", () => {
     );
     expect(backend.writeId).not.toHaveBeenCalled();
   });
+  it("archives only the selected draft after confirmation", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    backend.write.mockResolvedValueOnce({ data: { id: "b" }, error: null });
+    const user = userEvent.setup();
+    show();
+    const draft = await screen.findByRole("heading", { name: "Draft Survey" });
+    const active = screen.getByRole("heading", { name: "Active Survey" });
+    expect(
+      within(active.closest("article")!).queryByRole("button", {
+        name: "Archive",
+      }),
+    ).toBeNull();
+    await user.click(
+      within(draft.closest("article")!).getByRole("button", {
+        name: "Archive",
+      }),
+    );
+    await waitFor(() => expect(backend.list).toHaveBeenCalledTimes(2));
+    expect(backend.update).toHaveBeenCalledWith({ status: "archived" });
+    expect(backend.writeId).toHaveBeenCalledWith("id", "b");
+    expect(backend.writeStatus).toHaveBeenCalledWith("status", "draft");
+  });
   it("does not remain loading if the list request rejects", async () => {
     backend.list.mockRejectedValueOnce(new Error("list unavailable"));
     show();
