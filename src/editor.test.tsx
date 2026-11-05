@@ -55,6 +55,18 @@ async function completeForm(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText("Choice 2"), "No");
 }
 describe("survey editor", () => {
+  it("rejects a title containing only whitespace before saving", async () => {
+    const user = userEvent.setup();
+    showEditor();
+    await completeForm(user);
+    await user.clear(screen.getByLabelText("Survey title"));
+    await user.type(screen.getByLabelText("Survey title"), "   ");
+    await user.click(screen.getByRole("button", { name: "Save draft" }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /enter a survey title/i,
+    );
+    expect(backend.rpc).not.toHaveBeenCalled();
+  });
   it("saves a valid draft with the entered questions and choices", async () => {
     const user = userEvent.setup();
     showEditor();

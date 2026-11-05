@@ -550,6 +550,10 @@ export function Editor() {
   }
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    if (!title.trim()) {
+      setError("Enter a survey title.");
+      return;
+    }
     if (
       !questions.length ||
       questions.some(
