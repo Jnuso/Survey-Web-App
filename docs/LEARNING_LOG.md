@@ -123,3 +123,11 @@ Added tests for multi-question CSV escaping and answer mapping, per-question res
 ## Expanded workflow checks
 
 Added mocked tests for student storage and lost-response retries, presentation route changes, failed result refresh and export, dashboard activation and archive, and editor restrictions, ordering, and cancelled deletion. The full suite passed 94 tests with two workers on November 4. Live instructor, database, device, and accessibility checks remain as listed in the submission checklist.
+
+
+## Live lifecycle check — November 5
+
+A disposable draft was created and archived, then duplicated. The duplicate retained its question and choices, activated successfully, displayed a QR and student URL, accepted a fictional Yes response, and instructor results showed one response and Yes 100%. Activating it closed the prior active sample; its responses were retained. The presentation close confirmation stalled in the browser, and a fresh dashboard still showed the disposable survey active; close is not verified. Deletion, spreadsheet inspection, and remaining access-control checks remain open.
+
+
+On November 5, a full run with two workers had three timeouts and one subsequent failure; a repeat using one worker and a 20-second per-test timeout passed all 104 tests. The constrained run took approximately 257 seconds, so the earlier failures should not be represented as a clean first pass.
