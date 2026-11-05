@@ -199,6 +199,18 @@ describe("instructor authentication", () => {
     ).toBeTruthy();
     expect(screen.queryByText(/unable to check your session/i)).toBeNull();
   });
+  it("opens a public survey without waiting for an instructor session lookup", async () => {
+    backend.session.mockReturnValueOnce(new Promise(() => {}));
+    render(
+      <MemoryRouter initialEntries={["/s/public"]}>
+        <App />
+      </MemoryRouter>,
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Public survey" }),
+    ).toBeTruthy();
+    expect(backend.load).toHaveBeenCalled();
+  });
   it("does not hide a session error when the initial auth event is null", async () => {
     let reject!: (reason: unknown) => void;
     backend.session.mockReturnValueOnce(
