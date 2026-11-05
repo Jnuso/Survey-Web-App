@@ -75,6 +75,21 @@ describe("instructor authentication", () => {
       await screen.findByRole("heading", { name: "Welcome back." }),
     ).toBeTruthy();
   });
+  it.each([
+    "/surveys/new",
+    "/surveys/example/edit",
+    "/surveys/example/present",
+    "/surveys/example/results",
+  ])("redirects a signed-out visitor from %s", async (path) => {
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <App />
+      </MemoryRouter>,
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Welcome back." }),
+    ).toBeTruthy();
+  });
   it("shows a generic error for invalid credentials and allows retry", async () => {
     backend.signIn.mockResolvedValueOnce({
       error: { message: "internal auth details" },
