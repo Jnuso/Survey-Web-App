@@ -55,6 +55,20 @@ async function completeForm(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText("Choice 2"), "No");
 }
 describe("survey editor", () => {
+  it("rejects saving a survey with no questions after the last question is deleted", async () => {
+    const user = userEvent.setup();
+    showEditor();
+    await completeForm(user);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    await user.click(screen.getByRole("button", { name: "Delete question 1" }));
+    await user.click(screen.getByRole("button", { name: "Save draft" }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /add at least one question/i,
+    );
+    expect(backend.rpc).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "+ Add question" }));
+    expect(screen.getByLabelText("Question", { exact: true })).toBeTruthy();
+  });
   it("keeps at least two choices and respects cancellation when removing a filled choice", async () => {
     const user = userEvent.setup();
     showEditor();
