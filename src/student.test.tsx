@@ -251,6 +251,33 @@ describe("student survey", () => {
     ).toBeTruthy();
     expect(backend.rpc).toHaveBeenCalledTimes(2);
   });
+  it("reuses the same token after a lost response and reports a duplicate safely", async () => {
+    backend.rpc
+      .mockRejectedValueOnce(new Error("connection lost"))
+      .mockResolvedValueOnce({
+        data: null,
+        error: { message: "DUPLICATE_RESPONSE" },
+      });
+    const user = userEvent.setup();
+    showSurvey();
+    await answerBoth(user);
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /could not be submitted/i,
+    );
+    const first = backend.rpc.mock.calls[0][1];
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toMatch(
+        /already submitted/i,
+      ),
+    );
+    const second = backend.rpc.mock.calls[1][1];
+    expect(first.p_anonymous_token).toBeTruthy();
+    expect(second.p_anonymous_token).toBe(first.p_anonymous_token);
+    expect(second.p_answers).toEqual(first.p_answers);
+    expect(screen.queryByRole("heading", { name: "Thank you!" })).toBeNull();
+  });
   it("does not carry answers between survey routes", async () => {
     const other = { ...survey, id: "survey-2", title: "Other survey" };
     backend.load
