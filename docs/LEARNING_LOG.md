@@ -139,3 +139,5 @@ On November 5, the previously downloaded fictional-response CSV was opened in Ex
 ## Database role checks — November 5
 
 In the Supabase SQL editor, a rollback-only transaction simulated the authenticated role with a non-instructor UUID. `is_instructor()` returned false, and response and answer counts visible under row-level security were both zero. A separate simulated-role call to `get_survey_results` for the disposable survey raised `AUTH_REQUIRED`. These checks did not authenticate an actual non-instructor account through the API, so that integration case remains open. A read-only instructor query also found one response for the disposable survey and two for the earlier active test survey.
+
+A further rollback-only SQL check attempted a no-op update of the active disposable survey under the simulated authenticated non-instructor role. The update returned zero rows. This does not establish behavior for every write operation or a separately signed-in account.
