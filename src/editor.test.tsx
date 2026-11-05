@@ -128,6 +128,33 @@ describe("survey editor", () => {
       }),
     );
   });
+  it("saves answer choices in the order selected by the instructor", async () => {
+    const user = userEvent.setup();
+    showEditor();
+    await completeForm(user);
+    await user.click(
+      screen.getByRole("button", { name: "Move choice 1 down in question 1" }),
+    );
+    expect((screen.getByLabelText("Choice 1") as HTMLInputElement).value).toBe(
+      "No",
+    );
+    expect((screen.getByLabelText("Choice 2") as HTMLInputElement).value).toBe(
+      "Yes",
+    );
+    await user.click(screen.getByRole("button", { name: "Save draft" }));
+    expect(backend.rpc).toHaveBeenCalledWith(
+      "save_survey",
+      expect.objectContaining({
+        p_questions: [
+          {
+            question_text: "Ready?",
+            question_type: "multiple_choice",
+            choices: ["No", "Yes"],
+          },
+        ],
+      }),
+    );
+  });
   it("does not replace filled choices when the type-change warning is cancelled", async () => {
     const user = userEvent.setup();
     showEditor();
