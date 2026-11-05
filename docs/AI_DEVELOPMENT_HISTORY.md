@@ -30,3 +30,7 @@ This is a summary of the actual work in the Codex chat; it is not a verbatim tra
 16. The agent added dashboard tests, improved failed-load recovery and guarded stale actions, then independently reviewed remaining cross-tab concurrency and live integration limitations.
 
 17. The agent expanded simulated-network Supabase client checks and incorporated independent review to verify that requests reached the simulated transport, error codes were retained, and instructor tokens were not forwarded.
+
+18. Further tests covered editor validation and ordering, dashboard actions, student retries, results refresh, and authentication. A full run initially had timeout failures; a repeat with one worker and a longer timeout passed 104 tests.
+
+19. The student authorized final checks. The agent archived and duplicated a disposable survey, activated the copy, submitted a fictional response, verified its results, and opened a previous CSV in Excel. The close confirmation stalled; close and delete checks remain open. The concurrent draft-save risk was disclosed. The student is helping reopen Supabase because its dashboard stalled in the agent browser.
