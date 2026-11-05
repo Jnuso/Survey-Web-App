@@ -114,6 +114,35 @@ describe("instructor dashboard", () => {
       p_survey_id: "b",
     });
   });
+  it("reports a failed activation and allows the instructor to retry", async () => {
+    backend.rpc
+      .mockResolvedValueOnce({
+        data: null,
+        error: new Error("activation failed"),
+      })
+      .mockResolvedValueOnce({ data: null, error: null });
+    const user = userEvent.setup();
+    show();
+    const heading = await screen.findByRole("heading", {
+      name: "Draft Survey",
+    });
+    const activate = within(heading.closest("article")!).getByRole("button", {
+      name: "Activate",
+    });
+    await user.click(activate);
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /activation failed/i,
+    );
+    expect((activate as HTMLButtonElement).disabled).toBe(false);
+    expect(
+      screen.queryByRole("heading", { name: "Presentation destination" }),
+    ).toBeNull();
+    await user.click(activate);
+    expect(
+      await screen.findByRole("heading", { name: "Presentation destination" }),
+    ).toBeTruthy();
+    expect(backend.rpc).toHaveBeenCalledTimes(2);
+  });
   it("duplicates question content into a new survey without reusing IDs", async () => {
     backend.survey.mockResolvedValueOnce({
       questions: [
