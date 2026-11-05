@@ -10,7 +10,7 @@ Use this short checklist to prepare the HuskyCT submission. The detailed impleme
 - [x] Open the downloaded CSV in a spreadsheet application and verify its columns and answers. Excel displayed separate columns and fictional answers TRUE and Testing on November 5; narrow columns clipped longer values visually, which were verified in the raw CSV.
 - [ ] Check the student and instructor pages with keyboard navigation and a second browser; record any limitations. The phone submission and QR opening were reported successful.
 - [x] Disclose the unresolved editor navigation and overlapping-save risk and its workaround in the development summary; a version-based fix remains future work.
-- [ ] Review the outstanding access-control cases in the detailed test log. Anonymous response reads and survey writes were denied in earlier checks, but not every RLS and non-instructor case has been tested.
+- [ ] Review the outstanding access-control cases in the detailed test log. Anonymous response reads and survey writes were denied in earlier checks. A simulated non-instructor SQL role saw no response or answer rows and received AUTH_REQUIRED from the results function; an actual non-instructor API login remains untested.
 - [x] Run the local tests and production build. On November 5, 104 tests passed with one worker and a 20-second timeout; the earlier run timed out and a related test also failed. The latest production build passed with a Vite bundle-size warning. Repeat if code changes before submission.
 
 ## Prepare required deliverables

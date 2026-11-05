@@ -134,3 +134,8 @@ On November 5, a full run with two workers had three timeouts and one subsequent
 
 
 On November 5, the previously downloaded fictional-response CSV was opened in Excel. The fields appeared in separate columns and the answers displayed as TRUE and Testing. Long headers and the response ID were clipped by the default column widths; the full values were verified in the CSV text. GitHub Actions run 42001432449 for commit 02db831 completed successfully.
+
+
+## Database role checks — November 5
+
+In the Supabase SQL editor, a rollback-only transaction simulated the authenticated role with a non-instructor UUID. `is_instructor()` returned false, and response and answer counts visible under row-level security were both zero. A separate simulated-role call to `get_survey_results` for the disposable survey raised `AUTH_REQUIRED`. These checks did not authenticate an actual non-instructor account through the API, so that integration case remains open. A read-only instructor query also found one response for the disposable survey and two for the earlier active test survey.
