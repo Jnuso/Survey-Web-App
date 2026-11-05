@@ -159,6 +159,35 @@ describe("student survey", () => {
       ).disabled,
     ).toBe(false);
   });
+  it("preserves answers and retries if saving the browser token initially fails", async () => {
+    const user = userEvent.setup();
+    showSurvey();
+    await answerBoth(user);
+    const setItem = vi
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementationOnce(() => {
+        throw new Error("storage full");
+      });
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /storage is unavailable/i,
+    );
+    expect(backend.rpc).not.toHaveBeenCalled();
+    setItem.mockRestore();
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    expect(
+      await screen.findByRole("heading", { name: "Thank you!" }),
+    ).toBeTruthy();
+    expect(backend.rpc).toHaveBeenCalledWith(
+      "submit_survey_response",
+      expect.objectContaining({
+        p_answers: expect.arrayContaining([
+          { question_id: "q1", choice_id: "yes" },
+          { question_id: "q2", choice_id: "sql" },
+        ]),
+      }),
+    );
+  });
   it("handles an unavailable survey without exposing database errors", async () => {
     backend.load.mockResolvedValue({
       data: null,
