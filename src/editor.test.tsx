@@ -67,6 +67,29 @@ describe("survey editor", () => {
     );
     expect(backend.rpc).not.toHaveBeenCalled();
   });
+  it.each(["Question", "Choice 1"])(
+    "rejects whitespace-only %s and saves after correction",
+    async (field) => {
+      const user = userEvent.setup();
+      showEditor();
+      await completeForm(user);
+      const input = screen.getByLabelText(field, { exact: true });
+      await user.clear(input);
+      await user.type(input, "   ");
+      await user.click(screen.getByRole("button", { name: "Save draft" }));
+      expect((await screen.findByRole("alert")).textContent).toMatch(
+        /complete every question and choice/i,
+      );
+      expect(backend.rpc).not.toHaveBeenCalled();
+      await user.clear(input);
+      await user.type(input, field === "Question" ? "Corrected?" : "Corrected");
+      await user.click(screen.getByRole("button", { name: "Save draft" }));
+      expect(
+        await screen.findByRole("heading", { name: "Dashboard destination" }),
+      ).toBeTruthy();
+      expect(backend.rpc).toHaveBeenCalledTimes(1);
+    },
+  );
   it("saves a valid draft with the entered questions and choices", async () => {
     const user = userEvent.setup();
     showEditor();
