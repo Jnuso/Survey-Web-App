@@ -200,6 +200,10 @@ This roadmap tracks implementation. A checked implementation item means code exi
 
 # Phase 14 — Testing
 
+- [ ] Fix the November 5 audit finding: prevent answer edits while a student submission is pending; verify failure/retry recovery.
+- [ ] Fix the November 5 audit finding: separate presentation count errors so a valid QR and instructor controls remain usable.
+- [ ] Rerun affected tests, full suite, build and deployed workflows after audit fixes. See `docs/RUBRIC_CODE_AUDIT_2026-11-05.md`.
+
 - [x] Test instructor login.
 - [x] Test survey creation.
 - [x] Test survey editing. (Title and question/choice ordering verified; other cases remain.)

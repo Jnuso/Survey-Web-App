@@ -24,3 +24,5 @@ The production build and 104 automated tests passed with one worker and a 20-sec
 
 This project illustrates how a frontend, a hosted database, authentication, and a hosting service cooperate: the frontend provides the interface, while access rules and database functions enforce the important data restrictions. Independent AI review can surface defects, but tests and direct verification are needed to evaluate each finding.
 
+A November 5 follow-up audit reproduced two additional workflow defects with mocked requests: answer choices remain editable during submission, and a count-only failure hides a valid QR presentation. Fixes and the remaining live checks/evidence are tracked in the final checklist. The updated Gemma worker could not start because Docker failed locally; direct reviewers provided the independent review instead. No new student-access bypass was identified in that static review, which does not establish deployed security.
+

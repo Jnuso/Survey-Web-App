@@ -1,0 +1,17 @@
+{
+  "commit": "087baec",
+  "files": {
+    "src/main.tsx": "f1ab44cb932477d8f3c5b07d06cbef521dde5c076ba499b9e6e797df5f4f98a2",
+    "src/lib.ts": "ebf5501a3cc734102c7744efdd69dec257a51f2dd9fd23da931dc8b847070858",
+    "src/style.css": "69dd9dea667f17c6de004b966ddc071512bb1eb500c3e1c2d893a87d37fc336c",
+    "supabase/migrations/20261030000000_initial.sql": "1a2f7d55c0d8d19801f56a82facf31489e3f01a67bce4dab1baf3f2282f6352a",
+    "supabase/migrations/20261030010000_results_snapshot.sql": "03b9201bf0029cb02fdcfdb56c21db35289d7c562f798f10d3b05826b22e084a",
+    "package.json": "2968a57f6d019a4c49f804ec423e9baf93a0447d5063bbc109e9a20828d428d9",
+    "vite.config.ts": "347bfd250d438b201f8d67e6aca196f6609ed9d06198486ae2d44b291dd75755",
+    ".github/workflows/pages.yml": "ee6ccc906c20c8c91249397a4e6ed466fce95e3d37b8a47640e7450065ff4da2",
+    "Classroom_Survey_Web_App_Specification.md": "b182cfb9192816e4738322054e469ec07ac82d5253efd171919b5f3c21d3bcab",
+    "DATABASE.md": "952f79d78ae90fe1610fd2cf00c9a1b1d26df1dcc14fc9ee87190cc0cb302345",
+    "API.md": "71e9257e47abd315b5bbf3d65f5f2818f1cdcc9107d1becd665f563f1ec5364e",
+    "UI.md": "855a550ade7374b68e3625cb9c2a7f9fd559d2ad05cc78775c5b4f5a4b68259f"
+  }
+}

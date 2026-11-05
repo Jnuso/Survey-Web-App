@@ -2,7 +2,14 @@
 
 Use this short checklist to prepare the HuskyCT submission. The detailed implementation roadmap is in [TODO.md](../TODO.md), and the precise test history is in [Browser Test Cases](BROWSER_TEST_CASES.md). Check an item only after verifying it.
 
-See [Final audit, November 5](FINAL_AUDIT.md) for the latest evidence and order of work.
+See [Additional rubric/code audit, November 5](RUBRIC_CODE_AUDIT_2026-11-05.md) for the latest findings and rubric mapping; the [earlier final audit](FINAL_AUDIT.md) has the detailed manual workflow.
+
+## Resolve new audit findings
+
+- [ ] Disable student answer changes while submission is pending and add an acceptance test. The audit reproduced a visible choice change after an earlier choice had already been sent.
+- [ ] Keep a valid presentation usable when only response-count loading fails; show count-specific error feedback and add an acceptance test. The audit reproduced QR and Close/View results controls disappearing.
+- [ ] After fixes, run the affected tests, full suite and production build, deploy, and repeat the relevant public workflows. The two audit reproductions demonstrate defects; they do not establish fixes.
+- [ ] Decide whether to fix the known concurrent-draft overwrite risk now or retain its explicit disclosure and one-tab workaround.
 
 ## Finish verification
 

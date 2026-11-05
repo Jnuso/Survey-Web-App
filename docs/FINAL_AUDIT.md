@@ -1,5 +1,7 @@
 # Final submission audit — November 5, 2026
 
+Follow-up: the [additional rubric/code audit](RUBRIC_CODE_AUDIT_2026-11-05.md) found two more workflow defects, refreshed test/CI evidence, and recorded the updated Gemma attempt. Use it with the final submission checklist before submitting.
+
 ## Verdict
 
 The core app is implemented and deployed. It is not yet fully verified for submission. Finish the live checks and evidence below, then review the write-ups and provide private instructor access. This audit reviewed current files and the current commit's GitHub checks; it did not rerun the browser workflow or change database data.

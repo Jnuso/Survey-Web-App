@@ -21,6 +21,8 @@ This is a bounded evaluation of the existing coding-agents review worker, inspir
 
 Not run: the local Docker Linux engine was unavailable on initial inspection. No scores or reviewer conclusions are available yet. Update this section only with actual evidence.
 
+November 5 update: the updated service was attempted using a permitted source-only snapshot, but Docker exited during startup with a stale-socket error; no Gemma job was created. Two fresh direct reviewers and two focused mocked reproductions identified workflow defects. See [the attempt and review record](REVIEW_2026-11-05.md). These are not Gemma baseline results.
+
 ## Direct-agent baseline — October 30, 2026
 
 A direct review agent received only `cases.md` and no answer key. It independently identified cases A, B, and C with the expected counterexamples and reported no finding for D. Score: 3/3 seeded defects, 0 findings on the control, 0 unsupported findings. No executable tests were run; exact duration and token usage were not captured. This result is not a custom Gemma-worker result, a comparison between models, or an estimate of real-world review accuracy.
