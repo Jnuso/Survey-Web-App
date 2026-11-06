@@ -14,7 +14,7 @@ See [Additional rubric/code audit, November 5](RUBRIC_CODE_AUDIT_2026-11-05.md) 
 
 ## Finish verification
 
-- [ ] Verify the final app in a local browser using the README setup commands: sign in, save/reopen a fictional draft, submit and check results against hosted Supabase. The latest local tests/build passed; a fresh local browser workflow after the final code fixes remains to be recorded.
+- [ ] Finish the local authenticated browser workflow: save/reopen a fictional draft, submit and check results against hosted Supabase. The [latest local verification](LOCAL_TEST_2026-11-05.md) passed 108 tests, build, dev/preview serving and signed-out route checks. The local page is awaiting the student's test-account sign-in; authenticated workflow completion has not been claimed.
 
 - [x] Complete a controlled fictional phone submission and check the matching results. The student reported that the final phone/browser workflow worked; earlier screenshots of `Survey Test` show 2 responses, one Phone and one Computer at 50% each. This is student-operated evidence, not independent device attribution from anonymous database records.
 - [x] Verify close and delete operations using disposable surveys. On November 5, the student manually completed the workflow: screenshots show `Survey Test` closed, its student link unavailable, the `TEST — DELETE ME` copy absent after deletion, and the original results retained with 2 responses. This supersedes the earlier stalled automation check; cancellation and deletion of surveys containing responses remain separate unverified cases.
