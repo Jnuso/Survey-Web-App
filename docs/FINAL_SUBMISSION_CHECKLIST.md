@@ -28,7 +28,8 @@ See [Additional rubric/code audit, November 5](RUBRIC_CODE_AUDIT_2026-11-05.md) 
 - [x] GitHub repository exists: https://github.com/Jnuso/Survey-Web-App
 - [x] Public app URL exists: https://jnuso.github.io/Survey-Web-App/
 - [ ] Confirm the latest commit is pushed and the public app is working when the assignment is submitted. Confirm no credentials or secret keys are committed.
-- [ ] Arrange a private way for the instructor to test the instructor interface. Do not put passwords in the repository, public screenshots, or chat.
+- [x] Create and verify a dedicated instructor test account. The student entered its password directly; after explicit confirmation it was enrolled in the app instructor allowlist. Live checks verified sign-in, existing results access, draft creation, and persisted true/false question/choices after reload and reopening. No platform-administration access was granted.
+- [ ] Provide the dedicated survey-app test login privately in the instructor-approved submission field/channel. Keep its password out of the repository, ZIP, screenshots and chat. The student plans to use HuskyCT if the submission field is private to course staff.
 - [x] Review the [development summary](DEVELOPMENT_SUMMARY.md). The student read it and confirmed it looked accurate on November 5.
 - [x] Review the [AI development history](AI_DEVELOPMENT_HISTORY.md) for accuracy, including the final fixes and evidence collection. The student confirmed it looked accurate on November 5.
 - [x] Capture current table/survey evidence. The student's November 5 [tables and surveys screenshot](evidence/01-database-surveys.png) shows all five required table names and the saved `Survey Test` rows with readable titles and closed status. Some UUIDs/descriptions are visually truncated; use the linked-question evidence to demonstrate relationships.
