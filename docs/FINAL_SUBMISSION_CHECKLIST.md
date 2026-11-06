@@ -4,6 +4,8 @@ Use this short checklist to prepare the HuskyCT submission. The detailed impleme
 
 See [Additional rubric/code audit, November 5](RUBRIC_CODE_AUDIT_2026-11-05.md) for the latest findings and rubric mapping; the [earlier final audit](FINAL_AUDIT.md) has the detailed manual workflow.
 
+The [final requirements inventory](FINAL_REQUIREMENTS_AUDIT.md) compares the resupplied originals with the final package. All required hand-in components are present; explicit performance targets and several detailed specification items remain unfinished/unverified and must not be described as complete.
+
 ## Resolve new audit findings
 
 - [x] Disable student answer changes while submission is pending and add acceptance tests. Disabled question fieldsets now keep the visible selection consistent with the sent payload; failure unlocks controls, and retry sends the changed answer with the same browser token.
@@ -19,7 +21,7 @@ See [Additional rubric/code audit, November 5](RUBRIC_CODE_AUDIT_2026-11-05.md) 
 
 - [x] Complete a controlled fictional phone submission and check the matching results. The student reported that the final phone/browser workflow worked; earlier screenshots of `Survey Test` show 2 responses, one Phone and one Computer at 50% each. This is student-operated evidence, not independent device attribution from anonymous database records.
 - [x] Verify close and delete operations using disposable surveys. On November 5, the student manually completed the workflow: screenshots show `Survey Test` closed, its student link unavailable, the `TEST — DELETE ME` copy absent after deletion, and the original results retained with 2 responses. This supersedes the earlier stalled automation check; cancellation and deletion of surveys containing responses remain separate unverified cases.
-- [x] Complete the baseline public-app smoke test. On November 5, the student reported the instructed workflows worked in desktop Edge and Chrome and on an iPhone, and confirmed instructor dashboard access in Chrome. Earlier screenshots show the matching fictional survey results. Repeat affected public workflows after the two open code fixes.
+- [x] Complete the baseline public-app smoke test. On November 5, the student reported the instructed workflows worked in desktop Edge and Chrome and on an iPhone, and confirmed instructor dashboard access in Chrome. Screenshots show matching fictional survey results. The two audit defects were later fixed; the subsequent hybrid local-student/public-instructor check is documented separately and does not establish all production fault-injection cases.
 - [x] Open the downloaded CSV in a spreadsheet application and verify its columns and answers. Excel displayed separate columns and fictional answers TRUE and Testing on November 5; narrow columns clipped longer values visually, which were verified in the raw CSV.
 - [x] Check basic keyboard navigation and a second browser. The student reported Tab navigation worked as expected, Space selected student radio choices, desktop Edge and Chrome worked, and the instructor dashboard opened in Chrome. The iPhone browser workflow also worked; Safari/Chrome were mentioned without a precise browser-by-browser sequence. Screen-reader, 200% zoom, long-content and contrast checks remain separate.
 - [x] Disclose the unresolved editor navigation and overlapping-save risk and its workaround in the development summary; a version-based fix remains future work.
