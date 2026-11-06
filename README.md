@@ -8,6 +8,33 @@ A classroom polling app built with React, TypeScript, Vite, and Supabase. Studen
 2. Create `.env` from `.env.example`. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the project URL and public publishable/anon key from Supabase. These values are public client configuration; never use a service-role or secret key in the frontend or repository.
 3. Complete the database setup below, then run `npm run dev`. Run `npm run build` and `npm test` to verify the production build and unit tests.
 
+From a Windows PowerShell terminal, a fresh checkout can be prepared with:
+
+```powershell
+git clone https://github.com/Jnuso/Survey-Web-App.git
+cd Survey-Web-App
+npm ci
+Copy-Item .env.example .env
+```
+
+Edit `.env` with the public Supabase configuration and complete the database setup below. When using the existing assignment project, its migrations are already applied; do not rerun them. Obtain instructor test access privately. Then start the frontend:
+
+```powershell
+npm run dev
+```
+
+Open the local URL printed by Vite (normally `http://localhost:5173`). The frontend runs on your computer and still connects to the hosted Supabase database, so internet access is required. A complete offline/local Supabase installation is not needed for this assignment. Stop the server with Ctrl+C.
+
+Validation commands:
+
+```powershell
+npm test
+npm run build
+npm run preview
+```
+
+Open the preview URL printed in the terminal to check the production build locally. The latest constrained test run used `npm test -- --maxWorkers=1 --testTimeout=20000` on this Windows machine. A successful test/build does not replace a local browser workflow check: sign in, save/reopen a fictional draft, submit to an active survey and verify results. Localhost QR links will not open the computer's app from a separate phone; use the deployed URL for phone checks.
+
 ## Supabase setup
 
 1. Create or select a dedicated Supabase project. In the SQL Editor, run the SQL files in `supabase/migrations/` in filename order once on a new database. They create tables, permissions, and database functions.
