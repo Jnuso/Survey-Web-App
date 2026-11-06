@@ -438,3 +438,7 @@ getAnalytics
 ```
 
 These are outside the MVP.
+
+## Implemented draft-save contract (follow-up)
+
+The editor calls `save_survey_checked(p_survey_id, p_title, p_description, p_questions, p_expected_updated_at)`, returning the saved UUID. For updates, pass the exact timestamp string returned by the original survey read; PostgreSQL compares it under a row lock and raises `DRAFT_CONFLICT` if another update occurred. Creation uses null ID and timestamp. The legacy `save_survey` name remains available for creation; versionless updates are rejected. `save_survey_internal` is private and has no authenticated/anonymous execute grant. Save then activate uses the returned ID and preserves it on activation failure.

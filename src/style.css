@@ -134,7 +134,7 @@ header {
   letter-spacing: 0.14em;
   font-size: 0.72rem;
   font-weight: 800;
-  color: #458069;
+  color: #35634f;
   margin-bottom: 12px;
 }
 .panel {
@@ -183,7 +183,7 @@ textarea:focus,
 select:focus,
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #9ac9ac;
+  outline: 3px solid #245f51;
   outline-offset: 2px;
 }
 .heading,
@@ -207,10 +207,11 @@ a:focus-visible {
 }
 .filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 24px;
 }
-.filters label:first-child {
+.filters .search-filter {
   flex: 1;
 }
 .filters label {
@@ -283,7 +284,7 @@ a:focus-visible {
   margin-bottom: 8px;
 }
 .muted {
-  color: #74867d;
+  color: #50665a;
   font-weight: 400;
   font-size: 0.85rem;
 }
@@ -316,7 +317,7 @@ a:focus-visible {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  color: #75867c;
+  color: #50665a;
   font-size: 0.82rem;
 }
 .student-title {

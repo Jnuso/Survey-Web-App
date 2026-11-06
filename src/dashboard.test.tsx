@@ -414,3 +414,37 @@ describe("instructor dashboard", () => {
     ).toBeTruthy();
   });
 });
+
+it("includes both ends of a local creation-date range", async () => {
+  const user = userEvent.setup();
+  backend.list.mockResolvedValue({
+    data: [
+      {
+        id: "a",
+        title: "Start boundary",
+        status: "closed",
+        created_at: "2026-01-02T00:00:00",
+      },
+      {
+        id: "b",
+        title: "End boundary",
+        status: "closed",
+        created_at: "2026-01-02T23:59:59.999",
+      },
+      {
+        id: "c",
+        title: "Outside range",
+        status: "closed",
+        created_at: "2026-01-03T00:00:00",
+      },
+    ],
+    error: null,
+  });
+  show();
+  await screen.findByText("Outside range");
+  await user.type(screen.getByLabelText("Created from"), "2026-01-02");
+  await user.type(screen.getByLabelText("Created through"), "2026-01-02");
+  expect(screen.getByText("Start boundary")).toBeTruthy();
+  expect(screen.getByText("End boundary")).toBeTruthy();
+  expect(screen.queryByText("Outside range")).toBeNull();
+});

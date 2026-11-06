@@ -4,7 +4,7 @@ A classroom polling app built with React, TypeScript, Vite, and Supabase. Studen
 
 ## Run locally
 
-1. Install Node.js 22.12 or later in the 22.x line, Node 24.x, or Node 26 or later and run `npm install`.
+1. Install Node.js 22.13 or later in the 22.x line, Node 24.x, or Node 26 or later and run `npm install`.
 2. Create `.env` from `.env.example`. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the project URL and public publishable/anon key from Supabase. These values are public client configuration; never use a service-role or secret key in the frontend or repository.
 3. Complete the database setup below, then run `npm run dev`. Run `npm run build` and `npm test` to verify the production build and unit tests.
 
@@ -28,6 +28,7 @@ Open the local URL printed by Vite (normally `http://localhost:5173`). The front
 Validation commands:
 
 ```powershell
+npm run lint
 npm test
 npm run build
 npm run preview
@@ -67,3 +68,11 @@ The React browser app uses the public Supabase client key. Auth signs in instruc
 The app is deployed on GitHub Pages. See `TODO.md`, `docs/BROWSER_TEST_CASES.md`, and `docs/LEARNING_LOG.md` for implemented features, verified behavior, and remaining tests. Do not use real student responses until database access controls have been tested in the deployed project.
 
 
+
+### Draft conflicts and export columns
+
+Draft saves use `save_survey_checked` with the exact `updated_at` version loaded by the editor. PostgreSQL locks the draft, compares that version, and rejects stale edits with `DRAFT_CONFLICT`. Copy your local edits before reloading if this happens. Apply every migration in filename order on a new project; the assignment project already has the conflict migration applied. Old clients may create drafts but cannot overwrite existing ones without a version.
+
+CSV exports keep response ID, timestamp, and question columns first, then append survey ID, title, description, status, and creation timestamp. Zero-response exports contain the column headers only. Dashboard creation-date filters use the viewer's local calendar, including both selected days. Missing or no-longer-valid choices count as unanswered.
+
+`python scripts/capacity_check.py` is an explicitly invoked, bounded check of the fixed fictional fixture. It needs that fixture active and submits 200 fictional responses; it is not part of ordinary local setup or CI. See `docs/REMAINING_CHANGES_REPORT.md` for measured scope and limitations.

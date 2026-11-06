@@ -46,11 +46,13 @@ describe("CSV export", () => {
       ],
     };
     expect(createCsv(survey, [])).toBe(
-      '"response_id","submitted_at","Question"',
+      '"response_id","submitted_at","Question","survey_id","survey_title","survey_description","survey_status","survey_created_at"',
     );
     expect(
       createCsv(survey, [{ id: "r", submitted_at: "today", answers: [] }]),
-    ).toBe('"response_id","submitted_at","Question"\r\n"r","today",""');
+    ).toBe(
+      '"response_id","submitted_at","Question","survey_id","survey_title","survey_description","survey_status","survey_created_at"\r\n"r","today","","s","Test","","draft","today"',
+    );
   });
   it("preserves Unicode and line breaks while escaping spreadsheet formulas", () => {
     expect(csvCell('Café, "yes"\nnext')).toBe('"Café, ""yes""\nnext"');
@@ -96,7 +98,7 @@ describe("CSV export", () => {
         },
       ]),
     ).toBe(
-      '"response_id","submitted_at","\'=First?","Second?","Third?"\r\n"r1","today","Yes, ""please""","\'+formula",""\r\n"r2","tomorrow","","","Other"',
+      '"response_id","submitted_at","\'=First?","Second?","Third?","survey_id","survey_title","survey_description","survey_status","survey_created_at"\r\n"r1","today","Yes, ""please""","\'+formula","","","","","",""\r\n"r2","tomorrow","","","Other","","","","",""',
     );
   });
   it("keeps every response once in a large export", () => {
@@ -109,6 +111,6 @@ describe("CSV export", () => {
     const rows = createCsv(survey, responses).split("\r\n");
     expect(rows).toHaveLength(602);
     expect(new Set(rows.slice(1)).size).toBe(601);
-    expect(rows[601]).toBe('"response-600","today"');
+    expect(rows[601]).toBe('"response-600","today","","","","",""');
   });
 });

@@ -36,6 +36,10 @@ function showEditor(path = "/surveys/new") {
         <Route path="/surveys/new" element={<Editor />} />
         <Route path="/surveys/:id/edit" element={<Editor />} />
         <Route path="/dashboard" element={<h1>Dashboard destination</h1>} />
+        <Route
+          path="/surveys/:id/present"
+          element={<h1>Presentation destination</h1>}
+        />
       </Routes>
     </MemoryRouter>,
   );
@@ -120,7 +124,7 @@ describe("survey editor", () => {
     );
     await user.click(screen.getByRole("button", { name: "Save draft" }));
     expect(backend.rpc).toHaveBeenCalledWith(
-      "save_survey",
+      "save_survey_checked",
       expect.objectContaining({
         p_questions: [
           {
@@ -192,7 +196,7 @@ describe("survey editor", () => {
       await screen.findByRole("heading", { name: "Dashboard destination" }),
     ).toBeTruthy();
     expect(backend.rpc).toHaveBeenCalledWith(
-      "save_survey",
+      "save_survey_checked",
       expect.objectContaining({
         p_title: "Class check-in",
         p_questions: [
@@ -220,7 +224,7 @@ describe("survey editor", () => {
     );
     await user.click(screen.getByRole("button", { name: "Save draft" }));
     expect(backend.rpc).toHaveBeenCalledWith(
-      "save_survey",
+      "save_survey_checked",
       expect.objectContaining({
         p_questions: [
           {
@@ -246,7 +250,7 @@ describe("survey editor", () => {
     );
     await user.click(screen.getByRole("button", { name: "Save draft" }));
     expect(backend.rpc).toHaveBeenCalledWith(
-      "save_survey",
+      "save_survey_checked",
       expect.objectContaining({
         p_questions: [
           {
@@ -296,7 +300,7 @@ describe("survey editor", () => {
     );
     await user.click(screen.getByRole("button", { name: "Save draft" }));
     expect(backend.rpc).toHaveBeenCalledWith(
-      "save_survey",
+      "save_survey_checked",
       expect.objectContaining({
         p_questions: [
           {
@@ -365,6 +369,10 @@ describe("survey editor", () => {
         <Routes>
           <Route path="/surveys/:id/edit" element={<Editor />} />
           <Route path="/dashboard" element={<h1>Dashboard destination</h1>} />
+          <Route
+            path="/surveys/:id/present"
+            element={<h1>Presentation destination</h1>}
+          />
         </Routes>
       </MemoryRouter>,
     );
@@ -490,4 +498,71 @@ describe("survey editor", () => {
       screen.getByRole("button", { name: "Move choice 1 down in question 1" }),
     ).toBeTruthy();
   });
+});
+
+it("protects newer edits and retains the stale editor contents", async () => {
+  const user = userEvent.setup();
+  backend.survey.mockResolvedValue({
+    ...draft("a", "Loaded draft"),
+    updated_at: "2026-11-06T00:00:00.123456Z",
+  });
+  backend.rpc.mockResolvedValue({
+    data: null,
+    error: { message: "DRAFT_CONFLICT" },
+  });
+  showEditor("/surveys/a/edit");
+  await screen.findByDisplayValue("Loaded draft");
+  await user.type(screen.getByLabelText("Survey title"), " local edits");
+  await user.click(screen.getByRole("button", { name: "Save draft" }));
+  expect((await screen.findByRole("alert")).textContent).toContain(
+    "another tab",
+  );
+  expect(backend.rpc).toHaveBeenCalledWith(
+    "save_survey_checked",
+    expect.objectContaining({
+      p_expected_updated_at: "2026-11-06T00:00:00.123456Z",
+    }),
+  );
+  expect(
+    (screen.getByLabelText("Survey title") as HTMLInputElement).value,
+  ).toContain("local edits");
+});
+it("saves before activation and opens the presentation", async () => {
+  const user = userEvent.setup();
+  showEditor();
+  await completeForm(user);
+  backend.survey.mockResolvedValue({
+    ...draft("survey-id", "Saved"),
+    updated_at: "2026-11-06T00:00:00Z",
+  });
+  await user.click(screen.getByRole("button", { name: "Save and activate" }));
+  await screen.findByText("Presentation destination");
+  expect(backend.rpc.mock.calls.map((c) => c[0])).toEqual([
+    "save_survey_checked",
+    "activate_survey",
+  ]);
+});
+it("reuses the saved draft when activation fails and is retried", async () => {
+  const user = userEvent.setup();
+  showEditor();
+  await completeForm(user);
+  backend.survey.mockResolvedValue({
+    ...draft("survey-id", "Saved"),
+    updated_at: "2026-11-06T00:00:00Z",
+  });
+  backend.rpc
+    .mockResolvedValueOnce({ data: "survey-id", error: null })
+    .mockResolvedValueOnce({ data: null, error: { message: "offline" } });
+  await user.click(screen.getByRole("button", { name: "Save and activate" }));
+  expect((await screen.findByRole("alert")).textContent).toContain(
+    "Draft saved",
+  );
+  await user.click(screen.getByRole("button", { name: "Save draft" }));
+  await screen.findByText("Dashboard destination");
+  expect(backend.rpc.mock.calls[2][1]).toEqual(
+    expect.objectContaining({
+      p_survey_id: "survey-id",
+      p_expected_updated_at: "2026-11-06T00:00:00Z",
+    }),
+  );
 });

@@ -16,7 +16,7 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Add QR code generation package.
 - [x] Create the initial project folder structure.
 - [x] Add `.env.example` with Supabase environment variable names.
-- [ ] Configure ESLint and formatting.
+- [x] Configure ESLint and formatting.
 - [x] Create a basic home page.
 - [x] Verify the project builds successfully.
 
@@ -145,7 +145,7 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Show counts for each choice.
 - [x] Show percentages for each choice.
 - [x] Add bar charts using Recharts.
-- [ ] Clearly label unanswered questions.
+- [x] Clearly label unanswered questions.
 - [x] Add Refresh Results button.
 - [x] Add link back to the main dashboard.
 
@@ -155,7 +155,7 @@ This roadmap tracks implementation. A checked implementation item means code exi
 
 - [x] Allow viewing results for Closed surveys.
 - [x] Allow viewing results for Archived surveys.
-- [ ] Add filtering by date.
+- [x] Add filtering by date.
 - [x] Add filtering by survey title.
 - [x] Preserve all historical response data.
 
@@ -164,7 +164,7 @@ This roadmap tracks implementation. A checked implementation item means code exi
 # Phase 11 — CSV Export
 
 - [x] Add Export CSV button.
-- [ ] Export survey metadata.
+- [x] Export survey metadata.
 - [x] Export one row per response.
 - [x] Include submission timestamp.
 - [x] Include each question and answer.

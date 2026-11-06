@@ -1,3 +1,5 @@
+> Follow-up: implementation findings in this historical audit are superseded by [the remaining changes report](REMAINING_CHANGES_REPORT.md). Date filtering, CSV metadata, unanswered counts, lint, editor activation, field messages, student retry, and draft conflict protection have since been implemented. Performance/accessibility limits remain explicitly scoped.
+
 # Final requirements and submission inventory — November 5, 2026
 
 ## Verdict

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   HashRouter,
@@ -11,16 +11,6 @@ import {
   useMatch,
 } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
-import QRCode from "qrcode";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import {
   configured,
   createCsv,
@@ -32,9 +22,14 @@ import {
   type Survey,
 } from "./lib";
 import "./style.css";
+const ResultsChart = lazy(() => import("./ResultsChart"));
 
 const message = (e: unknown) =>
-  e instanceof Error ? e.message : "Something went wrong. Please try again.";
+  e instanceof Error
+    ? e.message
+    : typeof e === "object" && e !== null && "message" in e
+      ? String(e.message)
+      : "Something went wrong. Please try again.";
 export function App() {
   const studentRoute = useMatch("/s/:slug");
   const [session, setSession] = useState<Session | null>(null);
@@ -225,6 +220,8 @@ export function Dashboard({ email }: { email: string }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [throughDate, setThroughDate] = useState("");
   const [status, setStatus] = useState("all");
   const [loadFailed, setLoadFailed] = useState(false);
   const loadVersion = useRef(0);
@@ -328,7 +325,11 @@ export function Dashboard({ email }: { email: string }) {
   const visible = surveys.filter(
     (s) =>
       s.title.toLowerCase().includes(search.toLowerCase()) &&
-      (status === "all" || s.status === status),
+      (status === "all" || s.status === status) &&
+      (!fromDate ||
+        new Date(s.created_at) >= new Date(`${fromDate}T00:00:00`)) &&
+      (!throughDate ||
+        new Date(s.created_at) <= new Date(`${throughDate}T23:59:59.999`)),
   );
   return (
     <>
@@ -354,6 +355,24 @@ export function Dashboard({ email }: { email: string }) {
         </div>
         <div className="filters">
           <label>
+            Created from
+            <input
+              type="date"
+              value={fromDate}
+              max={throughDate || undefined}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+          </label>
+          <label>
+            Created through
+            <input
+              type="date"
+              value={throughDate}
+              min={fromDate || undefined}
+              onChange={(e) => setThroughDate(e.target.value)}
+            />
+          </label>
+          <label className="search-filter">
             Search
             <input
               placeholder="Search surveys"
@@ -486,12 +505,18 @@ export function Editor() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const editorVersion = useRef(0);
+  const [revision, setRevision] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [validate, setValidate] = useState(false);
   useEffect(() => {
     editorVersion.current++;
     setBusy(false);
     setLoadFailed(false);
     let current = true;
     setError("");
+    setSavedId(null);
+    setRevision(null);
+    setValidate(false);
     if (!id) {
       setTitle("");
       setDescription("");
@@ -512,6 +537,7 @@ export function Editor() {
         if (!s) throw new Error("Survey not found");
         if (s.status !== "draft")
           throw new Error("Only draft surveys can be edited.");
+        setRevision(s.updated_at || null);
         setTitle(s.title);
         setDescription(s.description || "");
         setQuestions(
@@ -550,6 +576,10 @@ export function Editor() {
   }
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    setValidate(true);
+    const activate =
+      (e.nativeEvent as SubmitEvent).submitter?.getAttribute("value") ===
+      "activate";
     if (!title.trim()) {
       setError("Enter a survey title.");
       return;
@@ -572,8 +602,9 @@ export function Editor() {
     setBusy(true);
     setError("");
     try {
-      const { error } = await db.rpc("save_survey", {
-        p_survey_id: id || null,
+      const { data, error } = await db.rpc("save_survey_checked", {
+        p_survey_id: savedId || id || null,
+        p_expected_updated_at: revision,
         p_title: title.trim(),
         p_description: description.trim() || null,
         p_questions: questions.map((q) => ({
@@ -583,8 +614,23 @@ export function Editor() {
         })),
       });
       if (version !== editorVersion.current) return;
-      if (error) setError(message(error));
-      else nav("/dashboard");
+      if (error) {
+        setError(
+          message(error).includes("DRAFT_CONFLICT")
+            ? "This draft changed in another tab. Copy your edits before reloading; saving was stopped to protect newer changes."
+            : message(error),
+        );
+      } else if (activate) {
+        setSavedId(data as string);
+        const saved = await surveyById(data as string);
+        if (version !== editorVersion.current) return;
+        setRevision(saved?.updated_at || null);
+        const result = await db.rpc("activate_survey", { p_survey_id: data });
+        if (version !== editorVersion.current) return;
+        if (result.error)
+          setError("Draft saved. Activation failed: " + message(result.error));
+        else nav(`/surveys/${data}/present`);
+      } else nav("/dashboard");
     } catch (e) {
       if (version === editorVersion.current) setError(message(e));
     } finally {
@@ -622,7 +668,7 @@ export function Editor() {
             <p>Build a quick check-in for your students.</p>
           </div>
         </div>
-        <form onSubmit={save}>
+        <form onSubmit={save} onInvalid={() => setValidate(true)}>
           <fieldset className="editor-fields" disabled={busy}>
             <section className="panel">
               <h2>The details</h2>
@@ -635,6 +681,9 @@ export function Editor() {
                   maxLength={200}
                 />
               </label>
+              {validate && !title.trim() && (
+                <p className="error">Enter a survey title.</p>
+              )}
               <label>
                 Description <span className="muted">(optional)</span>
                 <textarea
@@ -694,6 +743,9 @@ export function Editor() {
                     required
                   />
                 </label>
+                {validate && !q.question_text.trim() && (
+                  <p className="error">Enter the question text.</p>
+                )}
                 <label>
                   Question type
                   <select
@@ -723,6 +775,9 @@ export function Editor() {
                 <p className="field-title">Answer choices</p>
                 {q.choices.map((choice, n) => (
                   <div className="choice-edit" key={n}>
+                    {validate && !choice.trim() && (
+                      <span className="error">Enter this answer choice.</span>
+                    )}
                     <label className="sr-only" htmlFor={`${q.key}-${n}`}>
                       Choice {n + 1}
                     </label>
@@ -812,6 +867,9 @@ export function Editor() {
               <button disabled={busy || (!!error && !!id && !title)}>
                 {busy ? "Saving…" : "Save draft"}
               </button>
+              <button name="action" value="activate" disabled={busy}>
+                {busy ? "Saving..." : "Save and activate"}
+              </button>
             </div>
             {error && (
               <p role="alert" className="error">
@@ -857,6 +915,7 @@ export function Present() {
         if (!s || s.status !== "active")
           throw new Error("This survey is not active.");
         const url = `${window.location.origin}${import.meta.env.BASE_URL}#/s/${s.public_slug}`;
+        const QRCode = (await import("qrcode")).default;
         const image = await QRCode.toDataURL(url, { width: 600, margin: 2 });
         if (!alive || request !== latestRequest) return;
         setSurvey(s);
@@ -1003,6 +1062,7 @@ export function Student() {
   );
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   useEffect(() => {
     let current = true;
     setState("loading");
@@ -1033,7 +1093,7 @@ export function Student() {
     return () => {
       current = false;
     };
-  }, [slug]);
+  }, [slug, loadAttempt]);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!survey) return;
@@ -1097,6 +1157,9 @@ export function Student() {
         <div className="panel">
           <h1>Survey unavailable</h1>
           <p>{error}</p>
+          <button onClick={() => setLoadAttempt((n) => n + 1)}>
+            Try again
+          </button>
         </div>
       </main>
     );
@@ -1243,50 +1306,46 @@ export function Results() {
                 </div>
               )}
               {survey.questions?.map((q, i) => {
-                const data = q.choices.map((c) => {
-                  const count = responses.filter((r) =>
-                    r.answers.some(
-                      (a) => a.question_id === q.id && a.choice_id === c.id,
-                    ),
-                  ).length;
-                  const answered = responses.filter((r) =>
-                    r.answers.some((a) => a.question_id === q.id),
-                  ).length;
-                  return {
-                    name: c.choice_text,
-                    count,
-                    percentage: answered
-                      ? Math.round((count / answered) * 1000) / 10
-                      : 0,
-                  };
-                });
+                const counts = new Map(q.choices.map((c) => [c.id, 0]));
+                for (const response of responses) {
+                  const answer = response.answers.find(
+                    (a) => a.question_id === q.id,
+                  );
+                  if (answer && counts.has(answer.choice_id))
+                    counts.set(
+                      answer.choice_id,
+                      counts.get(answer.choice_id)! + 1,
+                    );
+                }
+                const answered = [...counts.values()].reduce(
+                  (sum, count) => sum + count,
+                  0,
+                );
+                const data = q.choices.map((c) => ({
+                  id: c.id,
+                  name: c.choice_text,
+                  count: counts.get(c.id) || 0,
+                  percentage: answered
+                    ? Math.round(((counts.get(c.id) || 0) / answered) * 1000) /
+                      10
+                    : 0,
+                }));
                 return (
                   <section className="panel result" key={q.id}>
                     <p className="eyebrow">
                       Question {String(i + 1).padStart(2, "0")}
                     </p>
                     <h2>{q.question_text}</h2>
-                    <div className="chart">
-                      <ResponsiveContainer width="100%" height={220}>
-                        <BarChart
-                          data={data}
-                          layout="vertical"
-                          margin={{ left: 15, right: 20 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            horizontal={false}
-                          />
-                          <XAxis type="number" allowDecimals={false} />
-                          <YAxis type="category" dataKey="name" width={120} />
-                          <Tooltip />
-                          <Bar dataKey="count" fill="#246959" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <p>
+                      {answered} answered / {responses.length - answered}{" "}
+                      unanswered
+                    </p>
+                    <Suspense fallback={<p>Loading chart...</p>}>
+                      <ResultsChart data={data} />
+                    </Suspense>
                     <ul className="result-list">
                       {data.map((d) => (
-                        <li key={d.name}>
+                        <li key={d.id}>
                           <span>{d.name}</span>
                           <strong>
                             {d.count} · {d.percentage}%

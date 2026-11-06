@@ -500,3 +500,17 @@ describe("student survey", () => {
     );
   });
 });
+
+it("retries a failed initial load without submitting an answer", async () => {
+  const user = userEvent.setup();
+  backend.load.mockResolvedValueOnce({
+    data: null,
+    error: { message: "offline" },
+  });
+  showSurvey();
+  await screen.findByText("Survey unavailable");
+  await user.click(screen.getByRole("button", { name: "Try again" }));
+  await screen.findByLabelText("Yes");
+  expect(backend.load).toHaveBeenCalledTimes(2);
+  expect(backend.rpc).not.toHaveBeenCalled();
+});

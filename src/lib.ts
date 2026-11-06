@@ -36,6 +36,7 @@ export type Survey = {
   status: "draft" | "active" | "closed" | "archived";
   public_slug: string | null;
   created_at: string;
+  updated_at?: string;
   questions?: Question[];
 };
 export type Response = {
@@ -46,11 +47,11 @@ export type Response = {
 export function ordered(s: Survey): Survey {
   return {
     ...s,
-    questions: (s.questions || [])
+    questions: [...(s.questions || [])]
       .sort((a, b) => a.position - b.position)
       .map((q) => ({
         ...q,
-        choices: q.choices.sort((a, b) => a.position - b.position),
+        choices: [...q.choices].sort((a, b) => a.position - b.position),
       })),
   };
 }
@@ -70,7 +71,16 @@ export function csvCell(value: string) {
 export function createCsv(s: Survey, responses: Response[]) {
   const questions = s.questions || [];
   return [
-    ["response_id", "submitted_at", ...questions.map((q) => q.question_text)],
+    [
+      "response_id",
+      "submitted_at",
+      ...questions.map((q) => q.question_text),
+      "survey_id",
+      "survey_title",
+      "survey_description",
+      "survey_status",
+      "survey_created_at",
+    ],
     ...responses.map((r) => [
       r.id,
       r.submitted_at,
@@ -81,6 +91,11 @@ export function createCsv(s: Survey, responses: Response[]) {
               c.id === r.answers.find((a) => a.question_id === q.id)?.choice_id,
           )?.choice_text || "",
       ),
+      s.id || "",
+      s.title || "",
+      s.description || "",
+      s.status || "",
+      s.created_at || "",
     ]),
   ]
     .map((row) => row.map(csvCell).join(","))

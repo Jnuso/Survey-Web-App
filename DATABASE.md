@@ -453,3 +453,7 @@ tags
 ```
 
 These are intentionally excluded from Version 1.
+
+## Implemented optimistic concurrency
+
+Migration `20261106000000_draft_conflict.sql` guards draft saves with the loaded `updated_at` timestamp. The update trigger advances it monotonically using clock time and a minimum one-microsecond increment. The checked save locks and compares before calling the private implementation, so simultaneous stale saves cannot silently replace newer edits. Live rollback assertions verified valid/stale behavior without retaining test data.

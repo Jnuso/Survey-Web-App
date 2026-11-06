@@ -49,4 +49,6 @@ The [final requirements inventory](FINAL_REQUIREMENTS_AUDIT.md) compares the res
 - [ ] Run the remaining isolated concurrency, large-data, failure-recovery, and accessibility cases in [Browser Test Cases](BROWSER_TEST_CASES.md); record results and fix reproducible defects.
 - [ ] Continue the reviewer experiment. Direct agents reviewed code; the Docker-dependent Gemma worker has not been verified. This is not a required assignment deliverable.
 
-Post-MVP features such as question banks, LMS integration, and AI question generation are not required for this hand-in. Date filtering and CSV survey metadata are open items in the supplied roadmap but are not named in the assignment's core functional requirements.
+Post-MVP features such as question banks, LMS integration, and AI question generation are not required for this hand-in. Date filtering and CSV survey metadata are now implemented; see REMAINING_CHANGES_REPORT.md for follow-up verification and remaining limits.
+
+- [x] Implement the remaining roadmap/UI changes and live database draft-conflict protection. See [follow-up report](REMAINING_CHANGES_REPORT.md) for exact test scope and limitations.

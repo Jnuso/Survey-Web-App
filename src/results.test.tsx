@@ -305,3 +305,17 @@ describe("results page", () => {
     expect(backend.csv).toHaveBeenCalledWith(initial.survey, initial.responses);
   });
 });
+
+it("labels missing answers explicitly", async () => {
+  backend.rpc.mockResolvedValue({
+    data: snapshot([
+      response("one", "yes"),
+      { id: "two", submitted_at: "today", answers: [] },
+    ]),
+    error: null,
+  });
+  showResults();
+  expect(
+    (await screen.findByText(/1 answered \/ 1 unanswered/)).textContent,
+  ).toBeTruthy();
+});
