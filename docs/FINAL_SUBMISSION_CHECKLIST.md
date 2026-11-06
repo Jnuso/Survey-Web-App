@@ -52,3 +52,5 @@ The [final requirements inventory](FINAL_REQUIREMENTS_AUDIT.md) compares the res
 Post-MVP features such as question banks, LMS integration, and AI question generation are not required for this hand-in. Date filtering and CSV survey metadata are now implemented; see REMAINING_CHANGES_REPORT.md for follow-up verification and remaining limits.
 
 - [x] Implement the remaining roadmap/UI changes and live database draft-conflict protection. See [follow-up report](REMAINING_CHANGES_REPORT.md) for exact test scope and limitations.
+
+- [x] Follow-up: 114 tests, lint, build, clean GitHub Actions install/deployment and the published save/activate/student/results/metadata-export workflow passed for 90b2c1b. New fictional test surveys were closed and retained. Use Assignment-15-Submission-Final-90b2c1b.zip instead of earlier ZIPs; page-rendering/accessibility limits remain in the follow-up report.
