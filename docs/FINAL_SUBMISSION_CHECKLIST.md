@@ -6,9 +6,10 @@ See [Additional rubric/code audit, November 5](RUBRIC_CODE_AUDIT_2026-11-05.md) 
 
 ## Resolve new audit findings
 
-- [ ] Disable student answer changes while submission is pending and add an acceptance test. The audit reproduced a visible choice change after an earlier choice had already been sent.
-- [ ] Keep a valid presentation usable when only response-count loading fails; show count-specific error feedback and add an acceptance test. The audit reproduced QR and Close/View results controls disappearing.
-- [ ] After fixes, run the affected tests, full suite and production build, deploy, and repeat the relevant public workflows. The two audit reproductions demonstrate defects; they do not establish fixes.
+- [x] Disable student answer changes while submission is pending and add acceptance tests. Disabled question fieldsets now keep the visible selection consistent with the sent payload; failure unlocks controls, and retry sends the changed answer with the same browser token.
+- [x] Keep a valid presentation usable when only response-count loading fails. Count failures now show an unavailable indicator and automatic-retry feedback; the QR and instructor controls remain available. Tests cover first-load failure, failed polling/recovery, missing counts, usable Close, and hiding a closed survey.
+- [x] Run affected tests, the full suite and production build after fixes. The full suite passed 108 tests on November 5; the build passed with the existing bundle-size warning.
+- [ ] Verify the deployed fixes and repeat the affected public presentation/student workflows. Automated error/delay cases use mocked services; a new production fault-injection test has not been claimed.
 - [ ] Decide whether to fix the known concurrent-draft overwrite risk now or retain its explicit disclosure and one-tab workaround.
 
 ## Finish verification
@@ -20,7 +21,7 @@ See [Additional rubric/code audit, November 5](RUBRIC_CODE_AUDIT_2026-11-05.md) 
 - [x] Check basic keyboard navigation and a second browser. The student reported Tab navigation worked as expected, Space selected student radio choices, desktop Edge and Chrome worked, and the instructor dashboard opened in Chrome. The iPhone browser workflow also worked; Safari/Chrome were mentioned without a precise browser-by-browser sequence. Screen-reader, 200% zoom, long-content and contrast checks remain separate.
 - [x] Disclose the unresolved editor navigation and overlapping-save risk and its workaround in the development summary; a version-based fix remains future work.
 - [ ] Review the outstanding access-control cases in the detailed test log. Anonymous response reads and survey writes were denied in earlier checks. A simulated non-instructor SQL role saw no response or answer rows and received AUTH_REQUIRED from the results function; an actual non-instructor API login remains untested.
-- [x] Run the local tests and production build. On November 5, 104 tests passed with one worker and a 20-second timeout; the earlier run timed out and a related test also failed. The latest production build passed with a Vite bundle-size warning. Repeat if code changes before submission.
+- [x] Run the local tests and production build. The latest November 5 run passed 108 tests with one worker and a 20-second timeout after the two fixes, and the production build passed with the existing Vite bundle-size warning. Earlier timeout failures remain in the historical log. Repeat affected checks if code changes before submission.
 
 ## Prepare required deliverables
 

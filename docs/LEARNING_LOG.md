@@ -155,3 +155,11 @@ The student followed the final manual checklist and supplied before/after screen
 ## Student keyboard and browser checks — November 5
 
 The student reported the instructed keyboard workflow worked as expected, using Space to select student radio options. That key behavior is expected. Desktop Edge and Chrome worked, an iPhone browser workflow worked, and the instructor dashboard opened in Chrome. The report mentioned Safari/Chrome on iPhone without a precise separate run sequence. Recorded the basic keyboard, mobile and second-browser checks as student-reported passes, supported by the earlier matching fictional results screenshots. No new assistant browser, database or automated test was run for this update. Extended accessibility, exact browser versions and exhaustive viewport coverage were not established. The two confirmed audit defects still need fixes and affected-workflow retesting.
+
+## Fixing the two workflow defects — November 5
+
+Added intended-behavior tests before the fixes. The focused run had 5 failures and 32 passes, reproducing editable pending answers and the loss of a valid presentation after count errors. Student question fieldsets are now disabled while submission is pending and unlocked on failure. Tests attempt a conflicting answer click, check the submitted payload, and verify a failed request can be retried with a changed answer and the same browser token.
+
+Presentation loading now separates count errors from survey/QR validation errors. A count-only failure clears the count to an explicit unavailable indicator, retains the QR and instructor actions, and explains that polling retries automatically. A closed/inaccessible survey still hides the presentation. Tests cover missing counts, initial and polled failures, recovery, and closing despite a count error.
+
+The two focused files passed 37 tests after the fixes. The full suite passed 108 tests across 8 files in 47.86 seconds with one worker and a 20-second timeout; the production build passed with the existing approximately 903 kB bundle warning. These are mocked component/transport checks, not new live fault injection. Deployment and an affected public-workflow smoke check are tracked separately. No database schema or policies changed; the known overlapping draft-save risk remains disclosed.

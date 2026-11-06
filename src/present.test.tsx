@@ -270,14 +270,12 @@ describe("survey presentation", () => {
   });
   it("ignores a late response count from the previous presentation", async () => {
     let finishOld!: (v: unknown) => void;
-    backend.survey
-      .mockResolvedValueOnce(survey)
-      .mockResolvedValueOnce({
-        ...survey,
-        id: "b",
-        title: "Survey B",
-        public_slug: "b",
-      });
+    backend.survey.mockResolvedValueOnce(survey).mockResolvedValueOnce({
+      ...survey,
+      id: "b",
+      title: "Survey B",
+      public_slug: "b",
+    });
     backend.count
       .mockReturnValueOnce(
         new Promise((resolve) => {
@@ -327,5 +325,73 @@ describe("survey presentation", () => {
       /unable to load response count/i,
     );
     expect(screen.queryByText("0")).toBeNull();
+    expect(screen.getByRole("img", { name: /QR code linking/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Close survey" })).toBeTruthy();
+  });
+  it("keeps a valid QR and instructor controls when the initial count request fails", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    backend.count.mockRejectedValueOnce(new Error("count transport failed"));
+    show();
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /unable to load response count/i,
+    );
+    expect(screen.getByRole("heading", { name: "Live survey" })).toBeTruthy();
+    expect(screen.getByRole("img", { name: /QR code linking/i })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "View results" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Download QR code" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Close survey" })).toBeTruthy();
+    expect(screen.getByText("Response count unavailable")).toBeTruthy();
+    expect(screen.queryByText("0")).toBeNull();
+    expect(screen.queryByText(/count transport failed/)).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Close survey" }));
+    expect(
+      await screen.findByRole("heading", { name: "Dashboard destination" }),
+    ).toBeTruthy();
+    expect(backend.close).toHaveBeenCalledTimes(1);
+  });
+  it("marks a failed polled count unavailable and recovers without hiding the QR", async () => {
+    vi.useFakeTimers();
+    backend.count
+      .mockResolvedValueOnce({ count: 3, error: null })
+      .mockResolvedValueOnce({
+        count: null,
+        error: { message: "count failed" },
+      })
+      .mockResolvedValueOnce({ count: 5, error: null });
+    show();
+    await act(async () => {});
+    expect(screen.getByText("3")).toBeTruthy();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+    expect(screen.getByRole("alert").textContent).toMatch(
+      /retrying automatically/i,
+    );
+    expect(screen.getByRole("img", { name: /QR code linking/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Close survey" })).toBeTruthy();
+    expect(screen.getByText("Response count unavailable")).toBeTruthy();
+    expect(screen.queryByText("3")).toBeNull();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+    expect(screen.getByText("5")).toBeTruthy();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+  it("still hides the presentation if revalidation finds the survey closed", async () => {
+    vi.useFakeTimers();
+    backend.survey
+      .mockResolvedValueOnce(survey)
+      .mockResolvedValueOnce({ ...survey, status: "closed" });
+    show();
+    await act(async () => {});
+    expect(screen.getByRole("img", { name: /QR code linking/i })).toBeTruthy();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+    expect(screen.getByRole("alert").textContent).toMatch(/not active/i);
+    expect(screen.queryByRole("img", { name: /QR code linking/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Close survey" })).toBeNull();
+    expect(backend.count).toHaveBeenCalledTimes(1);
   });
 });

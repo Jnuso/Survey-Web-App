@@ -829,6 +829,7 @@ export function Present() {
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [qr, setQr] = useState("");
   const [count, setCount] = useState<number | null>(null);
+  const [countError, setCountError] = useState("");
   const [error, setError] = useState("");
   const [closing, setClosing] = useState(false);
   const [closeError, setCloseError] = useState("");
@@ -840,6 +841,7 @@ export function Present() {
     setSurvey(null);
     setQr("");
     setCount(null);
+    setCountError("");
     setError("");
     setCloseError("");
     setClosing(false);
@@ -856,19 +858,28 @@ export function Present() {
           throw new Error("This survey is not active.");
         const url = `${window.location.origin}${import.meta.env.BASE_URL}#/s/${s.public_slug}`;
         const image = await QRCode.toDataURL(url, { width: 600, margin: 2 });
-        if (alive && request === latestRequest) {
-          setSurvey(s);
-          setQr(image);
-        }
-        const { count, error } = await db
-          .from("responses")
-          .select("id", { count: "exact", head: true })
-          .eq("survey_id", id!);
-        if (error) throw error;
-        if (count === null) throw new Error("Unable to load response count.");
-        if (alive && request === latestRequest) {
-          setCount(count);
-          setError("");
+        if (!alive || request !== latestRequest) return;
+        setSurvey(s);
+        setQr(image);
+        setError("");
+        try {
+          const { count, error } = await db
+            .from("responses")
+            .select("id", { count: "exact", head: true })
+            .eq("survey_id", id!);
+          if (error) throw error;
+          if (count === null) throw new Error("Unable to load response count.");
+          if (alive && request === latestRequest) {
+            setCount(count);
+            setCountError("");
+          }
+        } catch {
+          if (alive && request === latestRequest) {
+            setCount(null);
+            setCountError(
+              "Unable to load response count. Retrying automatically.",
+            );
+          }
         }
       } catch (e) {
         if (alive && request === latestRequest) setError(message(e));
@@ -937,13 +948,22 @@ export function Present() {
             </p>
             <p className="response-count">
               {count === null ? (
-                "Loading responses…"
+                countError ? (
+                  "Response count unavailable"
+                ) : (
+                  "Loading responses…"
+                )
               ) : (
                 <>
                   <strong>{count}</strong> responses
                 </>
               )}
             </p>
+            {countError && (
+              <p role="alert" className="error">
+                {countError}
+              </p>
+            )}
             {closeError && (
               <p role="alert" className="error">
                 {closeError}
@@ -1093,7 +1113,7 @@ export function Student() {
       </div>
       <form onSubmit={submit}>
         {survey.questions?.map((q, i) => (
-          <fieldset className="panel" key={q.id}>
+          <fieldset className="panel" key={q.id} disabled={busy}>
             <legend className="sr-only">
               Question {i + 1}: {q.question_text}
             </legend>

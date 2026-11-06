@@ -255,11 +255,64 @@ describe("student survey", () => {
     const button = screen.getByRole("button", { name: /submit response/i });
     await user.click(button);
     expect((button as HTMLButtonElement).disabled).toBe(true);
+    for (const radio of screen.getAllByRole("radio")) {
+      expect((radio.closest("fieldset") as HTMLFieldSetElement).disabled).toBe(
+        true,
+      );
+    }
+    await user.click(screen.getByLabelText("No"));
+    expect((screen.getByLabelText("Yes") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByLabelText("No") as HTMLInputElement).checked).toBe(
+      false,
+    );
     await user.click(button);
     expect(backend.rpc).toHaveBeenCalledTimes(1);
+    expect(backend.rpc.mock.calls[0][1].p_answers).toContainEqual({
+      question_id: "q1",
+      choice_id: "yes",
+    });
     resolve({ data: "response", error: null });
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "Thank you!" })).toBeTruthy(),
+    );
+  });
+  it("unlocks answers after a pending submission fails and retries with the changed answer", async () => {
+    let finish!: (value: unknown) => void;
+    backend.rpc.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const user = userEvent.setup();
+    showSurvey();
+    await answerBoth(user);
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    expect(
+      (screen.getByLabelText("No").closest("fieldset") as HTMLFieldSetElement)
+        .disabled,
+    ).toBe(true);
+    await act(async () => {
+      finish({ data: null, error: { message: "network failure" } });
+    });
+    expect((await screen.findByRole("alert")).textContent).toMatch(
+      /could not be submitted/i,
+    );
+    expect(
+      (screen.getByLabelText("No").closest("fieldset") as HTMLFieldSetElement)
+        .disabled,
+    ).toBe(false);
+    await user.click(screen.getByLabelText("No"));
+    await user.click(screen.getByRole("button", { name: /submit response/i }));
+    await screen.findByRole("heading", { name: "Thank you!" });
+    expect(backend.rpc).toHaveBeenCalledTimes(2);
+    expect(backend.rpc.mock.calls[1][1].p_answers).toContainEqual({
+      question_id: "q1",
+      choice_id: "no",
+    });
+    expect(backend.rpc.mock.calls[1][1].p_anonymous_token).toBe(
+      backend.rpc.mock.calls[0][1].p_anonymous_token,
     );
   });
   it("reuses an existing browser token", async () => {

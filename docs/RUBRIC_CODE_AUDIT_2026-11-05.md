@@ -1,5 +1,7 @@
 # Additional rubric and code audit — November 5, 2026
 
+Follow-up: the pending-answer and count-error defects below were subsequently fixed, with 108 automated tests and the production build passing. The student also completed basic keyboard/browser and manual close/delete checks. This document preserves the audit's original findings; consult the [current submission checklist](FINAL_SUBMISSION_CHECKLIST.md) and [learning log](LEARNING_LOG.md) for current verification and remaining work.
+
 ## Verdict and scope
 
 The core classroom survey app is implemented and deployed, but it is not ready to call fully verified. This audit confirmed two additional workflow defects, retained the known concurrent-draft-save risk, and checked the remaining work against the rubric supplied again on November 5. It did not change application code, apply database migrations, or repeat the live browser workflow.
