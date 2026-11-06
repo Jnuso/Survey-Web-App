@@ -193,7 +193,8 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Add error messages.
 - [x] Add confirmation dialogs for destructive actions.
 - [x] Improve QR-code presentation for classroom projection.
-- [ ] Test accessibility and keyboard navigation.
+- [x] Test basic keyboard navigation. The student reported Tab navigation and Space selection worked on November 5.
+- [ ] Complete broader accessibility checks, including screen reader, 200% zoom, long content, and contrast; basic keyboard success does not establish these results.
 - [ ] Improve color contrast.
 
 ---
@@ -215,8 +216,8 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Test duplicate-submission prevention.
 - [x] Test results calculations.
 - [x] Test CSV export. (Downloaded CSV parsed correctly and opened in Excel.)
-- [ ] Test mobile layout.
-- [ ] Test with at least two browsers.
+- [x] Test basic mobile layout and workflow. The student reported the iPhone browser workflow worked on November 5; exhaustive viewport/long-content checks remain open.
+- [x] Test with at least two browsers. The student reported desktop Edge and Chrome worked and confirmed instructor dashboard access in Chrome on November 5.
 - [ ] Test unauthorized access attempts.
 - [ ] Test database Row Level Security.
 

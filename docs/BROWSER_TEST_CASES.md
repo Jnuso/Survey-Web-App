@@ -79,12 +79,12 @@ Use the deployed app at https://jnuso.github.io/Survey-Web-App/. These are manua
 ### B13 — Keyboard and screen layout
 **Steps:** Navigate login, editor, student survey, results, and dialogs using Tab, Shift+Tab, Enter/Space, and radio arrow keys. At 200% zoom and a narrow mobile viewport, inspect page content and focus indicators.
 **Expected:** All controls have meaningful labels and visible focus; tasks can be completed by keyboard; content remains readable without horizontal clipping; choices have large touch targets and counts do not rely on color alone.
-**Status:** Not yet tested. Automated checks do not replace manual screen-reader verification.
+**Status:** Partial pass. On November 5, the student reported the instructed Tab workflow worked as expected, using Space to select student radio options. Space is normal radio selection behavior, not a defect. Screen-reader behavior, 200% zoom, long-content layout and a formal contrast check were not reported and remain open.
 
 ### B14 — Phone and second-browser smoke test
 **Steps:** On a phone, scan the QR and submit a fictional response. In a second desktop browser, open the same public link and complete a submission using its own browser token. Verify the additional responses in instructor results.
 **Expected:** The survey is usable on both devices, confirms each submission, and the instructor sees both responses after refresh.
-**Prior evidence:** Phone QR scan opened the survey; phone submission and second-browser checks are pending.
+**Status:** Student-reported pass for the final manual smoke workflow on November 5: desktop Edge and Chrome worked, an iPhone browser workflow worked, and the instructor dashboard opened in Chrome. Safari/Chrome were mentioned for the iPhone without a precise separate run sequence. Earlier screenshots show `Survey Test` with 2 responses, one Phone and one Computer at 50% each. No new assistant-controlled browser or database check was performed.
 
 ## Edge cases and failure recovery
 
@@ -169,3 +169,5 @@ These cases are **not yet tested** unless an explicit prior observation is state
 | 2026-11-04 | B08, B12, B14 | Background internal browser and anonymous API client | Partial pass | Active student form opened; anonymous reads of responses and answers and the results RPC were denied. Two records existed for the active survey, but neither was independently identified as the phone submission. No new student response was submitted. |
 
 | 2026-11-05 | B04, B06, B07, B10, B11 | Public app; student-operated browser; screenshots supplied in chat | Partial pass | The student manually followed the final workflow and confirmed deletion. Before/after screenshots show a draft `TEST — DELETE ME` copy and its subsequent absence; the original `Survey Test` remains closed with 2 responses, one Phone and one Computer at 50% each. A separate screenshot shows the student URL unavailable. This passes the confirmed-draft-deletion and closed-history checks, not every subcase of these case IDs. No new assistant browser/API check was performed. |
+
+| 2026-11-05 | B13, B14 | Public app; student-operated desktop Edge/Chrome and iPhone | Basic workflow pass; extended accessibility untested | The student reported Tab navigation worked, Space selected student options, both desktop browsers worked, and Chrome could open the instructor dashboard. The iPhone workflow also worked; exact Safari/Chrome sequence was not specified. This records the student's manual result, not a new automated run, exhaustive compatibility result or full accessibility audit. |
