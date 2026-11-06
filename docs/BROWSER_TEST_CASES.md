@@ -40,12 +40,12 @@ Use the deployed app at https://jnuso.github.io/Survey-Web-App/. These are manua
 ### B06 — Close and retain history
 **Steps:** While a test survey is open in a separate student session, close it from the instructor presentation page. Refresh the student page and attempt a submission. Open the instructor's results, archive the closed test survey, and reopen its results.
 **Expected:** The instructor is asked to confirm closing; students cannot submit once closed; the closed/archived survey and its previous results remain accessible to the instructor.
-**Status:** Not yet tested.
+**Status:** Partial pass. On November 5, the student manually completed the close workflow and supplied screenshots showing `Survey Test` closed, the student URL unavailable, and the original results retained with 2 responses. Archiving that closed survey with responses and reopening its results was not demonstrated in this sequence.
 
 ### B07 — Delete confirmation
 **Steps:** On a disposable draft created for this test, choose Delete and cancel. Verify it remains. Then choose Delete and confirm.
 **Expected:** Cancel preserves the draft. Confirm permanently removes only that draft. A survey with responses warns about deletion of its data; do not confirm deletion of evidence or other work.
-**Status:** Not yet tested.
+**Status:** Partial pass. Confirmed deletion passed in the student's November 5 manual check: before/after dashboard screenshots show `TEST — DELETE ME` removed, and the original `Survey Test` results still show 2 responses. Cancellation and the stronger warning for deleting a survey with responses were not demonstrated.
 
 ## Student and results workflows
 
@@ -167,3 +167,5 @@ These cases are **not yet tested** unless an explicit prior observation is state
 | 2026-11-01 | B14 | Physical phone, active test survey | Partial pass | The student reported opening the survey, submitting fictional answers, and seeing the thank-you confirmation. Second desktop browser and instructor-side verification of this specific phone response remain pending. |
 
 | 2026-11-04 | B08, B12, B14 | Background internal browser and anonymous API client | Partial pass | Active student form opened; anonymous reads of responses and answers and the results RPC were denied. Two records existed for the active survey, but neither was independently identified as the phone submission. No new student response was submitted. |
+
+| 2026-11-05 | B04, B06, B07, B10, B11 | Public app; student-operated browser; screenshots supplied in chat | Partial pass | The student manually followed the final workflow and confirmed deletion. Before/after screenshots show a draft `TEST — DELETE ME` copy and its subsequent absence; the original `Survey Test` remains closed with 2 responses, one Phone and one Computer at 50% each. A separate screenshot shows the student URL unavailable. This passes the confirmed-draft-deletion and closed-history checks, not every subcase of these case IDs. No new assistant browser/API check was performed. |

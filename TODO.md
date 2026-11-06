@@ -208,7 +208,8 @@ This roadmap tracks implementation. A checked implementation item means code exi
 - [x] Test survey creation.
 - [x] Test survey editing. (Title and question/choice ordering verified; other cases remain.)
 - [x] Test activation.
-- [ ] Finish the live close-button check. Earlier closed-link and retained-results checks passed; the latest disposable survey close confirmation did not complete.
+- [x] Finish the live close-button check. The student manually completed the November 5 workflow; screenshots show `Survey Test` closed, its student URL unavailable, and 2 historical responses retained.
+- [x] Verify confirmed deletion of a disposable draft. The student's November 5 before/after screenshots show `TEST — DELETE ME` removed while the original survey and its 2 responses remain.
 - [x] Test QR-code links.
 - [x] Test student submissions.
 - [x] Test duplicate-submission prevention.
