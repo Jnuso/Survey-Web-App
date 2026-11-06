@@ -29,3 +29,7 @@ The public instructor results showed exactly 1 response: True 1/100%, False 0/0%
 The presentation Close click initially timed out in the browser automation, and the dialog API did not expose a confirmation. Later the public dashboard showed the survey closed. A test-ID-scoped SQL cleanup (`update ... where status = 'active' returning ...`) returned zero rows, so it made no further status change. Reloading the local student URL showed Survey unavailable, and the closed survey's instructor results still showed the single True response. This verifies the final closed state and retained history, not uninterrupted automated confirmation handling.
 
 The user reported signing in locally, but the local tab visible to the assistant still showed the login page; the accessible authenticated session was on the public origin. Therefore this is a **hybrid local-student/public-instructor integration pass**, not a complete local instructor CRUD pass. The local authenticated instructor workflow, a fresh clone/install, live delay/error injection and actual non-instructor API login remain unverified. No password was read or extracted.
+
+## Student follow-up
+
+After the remaining local instructor check was identified, the student reported completing the local test. Recorded it as a student-reported manual pass; there was no additional assistant browser observation. The earlier assistant-run scope above remains unchanged. A fresh clone/install, live fault injection, actual non-instructor API login and broader concurrency/accessibility checks remain unverified.
